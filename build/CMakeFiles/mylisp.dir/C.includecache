@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tetsuro/mylisp/src/main.c
+stdio.h
+-
+string.h
+-
+memory.h
+-
+stdlib.h
+-
+errno.h
+-
+limits.h
+-
+

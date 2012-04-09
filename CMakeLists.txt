@@ -1,0 +1,4 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+PROJECT(mylisp)
+ADD_EXECUTABLE(mylisp src/main.c)
+

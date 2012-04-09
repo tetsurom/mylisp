@@ -1,0 +1,802 @@
+==3520== Memcheck, a memory error detector
+==3520== Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward et al.
+==3520== Using Valgrind-3.6.1-Debian and LibVEX; rerun with -h for copyright info
+==3520== Command: ./mylisp test
+==3520== 
+==3520== Invalid write of size 1
+==3520==    at 0x4C2979F: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520==  Address 0x51d0325 is 0 bytes after a block of size 5 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid write of size 1
+==3520==    at 0x4C2979F: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520==  Address 0x51d03d3 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4E78C65: vfprintf (vfprintf.c:1623)
+==3520==    by 0x4E81768: printf (printf.c:35)
+==3520==    by 0x4012C9: print_tree (main.c:184)
+==3520==    by 0x4012A0: print_tree (main.c:180)
+==3520==    by 0x400DB7: main (main.c:41)
+==3520==  Address 0x51d0325 is 0 bytes after a block of size 5 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4E78C65: vfprintf (vfprintf.c:1623)
+==3520==    by 0x4E81768: printf (printf.c:35)
+==3520==    by 0x4012C9: print_tree (main.c:184)
+==3520==    by 0x401336: print_tree (main.c:200)
+==3520==    by 0x4012A0: print_tree (main.c:180)
+==3520==    by 0x400DB7: main (main.c:41)
+==3520==  Address 0x51d03d3 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x40154B: eval (main.c:268)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d0325 is 0 bytes after a block of size 5 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x400FFA: create_cons_cell (main.c:107)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d03d3 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C29798: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d03d3 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid write of size 1
+==3520==    at 0x4C2979F: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d1263 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x400FFA: create_cons_cell (main.c:107)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d0481 is 0 bytes after a block of size 1 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C29798: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d0481 is 0 bytes after a block of size 1 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid write of size 1
+==3520==    at 0x4C2979F: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d1311 is 0 bytes after a block of size 1 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x400FFA: create_cons_cell (main.c:107)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d06f1 is 0 bytes after a block of size 1 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C29798: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==  Address 0x51d06f1 is 0 bytes after a block of size 1 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid write of size 1
+==3520==    at 0x4C2979F: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==  Address 0x51d1581 is 0 bytes after a block of size 1 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x400FFA: create_cons_cell (main.c:107)
+==3520==    by 0x4019DC: define_func (main.c:377)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d03d3 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C29798: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x4019DC: define_func (main.c:377)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d03d3 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid write of size 1
+==3520==    at 0x4C2979F: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x4019DC: define_func (main.c:377)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d1f23 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x4019DC: define_func (main.c:377)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C2A008: strcmp (mc_replace_strmem.c:538)
+==3520==    by 0x401785: eval (main.c:306)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d1263 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C2A00D: strcmp (mc_replace_strmem.c:538)
+==3520==    by 0x401785: eval (main.c:306)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d10f3 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x401220: get_tree (main.c:165)
+==3520==    by 0x401164: get_tree (main.c:146)
+==3520==    by 0x401251: get_tree (main.c:170)
+==3520==    by 0x400D96: main (main.c:39)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x400FFA: create_cons_cell (main.c:107)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401A50: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d1422 is 0 bytes after a block of size 2 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C29798: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401A50: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d1422 is 0 bytes after a block of size 2 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid write of size 1
+==3520==    at 0x4C2979F: strcpy (mc_replace_strmem.c:311)
+==3520==    by 0x40103E: create_cons_cell (main.c:110)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401A50: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2092 is 0 bytes after a block of size 2 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401A50: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4015AC: eval (main.c:275)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2092 is 0 bytes after a block of size 2 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401A50: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C2A008: strcmp (mc_replace_strmem.c:538)
+==3520==    by 0x401ADA: get_var (main.c:399)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d21f1 is 0 bytes after a block of size 1 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x401A50: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4C2A00D: strcmp (mc_replace_strmem.c:538)
+==3520==    by 0x401ADA: get_var (main.c:399)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d1311 is 0 bytes after a block of size 1 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x40142B: copy_tree (main.c:228)
+==3520==    by 0x401441: copy_tree (main.c:231)
+==3520==    by 0x401488: copy_tree (main.c:238)
+==3520==    by 0x4019C0: define_func (main.c:376)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 4
+==3520==    at 0x4018BB: eval (main.c:336)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2240 is 0 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 4
+==3520==    at 0x4018EE: eval (main.c:344)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2248 is 8 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 4
+==3520==    at 0x401349: free_tree (main.c:206)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2190 is 0 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 4
+==3520==    at 0x401373: free_tree (main.c:208)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2190 is 0 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 8
+==3520==    at 0x40137E: free_tree (main.c:208)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2198 is 8 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 8
+==3520==    at 0x40138B: free_tree (main.c:209)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2198 is 8 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid free() / delete / delete[]
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x401396: free_tree (main.c:209)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d21f0 is 0 bytes inside a block of size 1 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x401396: free_tree (main.c:209)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 8
+==3520==    at 0x40139B: free_tree (main.c:211)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d21a0 is 16 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 8
+==3520==    at 0x4013A8: free_tree (main.c:212)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d21a0 is 16 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 4
+==3520==    at 0x401349: free_tree (main.c:206)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2240 is 0 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 4
+==3520==    at 0x401373: free_tree (main.c:208)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2240 is 0 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 8
+==3520==    at 0x40139B: free_tree (main.c:211)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2250 is 16 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid free() / delete / delete[]
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2240 is 0 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid free() / delete / delete[]
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x4013B3: free_tree (main.c:212)
+==3520==    by 0x401995: eval (main.c:369)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520==  Address 0x51d2190 is 0 bytes inside a block of size 24 free'd
+==3520==    at 0x4C282E0: free (vg_replace_malloc.c:366)
+==3520==    by 0x4013BF: free_tree (main.c:214)
+==3520==    by 0x401AEA: get_var (main.c:401)
+==3520==    by 0x4018B2: eval (main.c:333)
+==3520==    by 0x401616: eval (main.c:280)
+==3520==    by 0x401A5F: appry (main.c:387)
+==3520==    by 0x401818: eval (main.c:316)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+==3520== Invalid read of size 1
+==3520==    at 0x4E78C65: vfprintf (vfprintf.c:1623)
+==3520==    by 0x4E81768: printf (printf.c:35)
+==3520==    by 0x4012C9: print_tree (main.c:184)
+==3520==    by 0x400DEB: main (main.c:44)
+==3520==  Address 0x51d1f23 is 0 bytes after a block of size 3 alloc'd
+==3520==    at 0x4C28F9F: malloc (vg_replace_malloc.c:236)
+==3520==    by 0x40101C: create_cons_cell (main.c:109)
+==3520==    by 0x4019DC: define_func (main.c:377)
+==3520==    by 0x40156F: eval (main.c:269)
+==3520==    by 0x4014E9: eval (main.c:258)
+==3520==    by 0x400DD5: main (main.c:43)
+==3520== 
+(
+defun
+fib
+(
+n
+)
+(
+if
+(
+<
+n
+3
+)
+1
+(
++
+(
+fib
+(
+-
+n
+1
+)
+)
+(
+fib
+(
+-
+n
+2
+)
+)
+)
+)
+)
+(
+fib
+1
+)
+(defun fib (n) (if (< n 3) 1 (+ (fib (- n 1)) (fib (- n 2))))) (fib 1)
+fib 1
+==3520== 
+==3520== HEAP SUMMARY:
+==3520==     in use at exit: 1,014 bytes in 60 blocks
+==3520==   total heap usage: 137 allocs, 80 frees, 2,851 bytes allocated
+==3520== 
+==3520== LEAK SUMMARY:
+==3520==    definitely lost: 72 bytes in 3 blocks
+==3520==    indirectly lost: 347 bytes in 21 blocks
+==3520==      possibly lost: 0 bytes in 0 blocks
+==3520==    still reachable: 595 bytes in 36 blocks
+==3520==         suppressed: 0 bytes in 0 blocks
+==3520== Rerun with --leak-check=full to see details of leaked memory
+==3520== 
+==3520== For counts of detected and suppressed errors, rerun with: -v
+==3520== ERROR SUMMARY: 139 errors from 40 contexts (suppressed: 4 from 4)
