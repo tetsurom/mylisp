@@ -1,4 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(mylisp)
+
+SET(CMAKE_C_FLAGS "-Wall -O0 -g3")
+
+
 ADD_EXECUTABLE(mylisp src/main.c)
 

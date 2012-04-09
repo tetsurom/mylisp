@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <limits.h>
+#include <assert.h>
 
 enum cell_type_e {NIL, TRUE, INT, STR, LIST};
 
@@ -24,10 +25,11 @@ cons_t* create_cons_cell(void* value, int type);
 cons_t* get_tree(FILE* file, char buf[], int buf_size);
 void print_tree(cons_t* tree);
 void free_tree(cons_t* cell);
+cons_t* copy_cell(cons_t* cell);
 cons_t* copy_tree(cons_t* tree);
 cons_t* eval(cons_t* tree, cons_t* vars);
 cons_t* define_func(cons_t* definition);
-cons_t* appry(cons_t* function, cons_t* args);
+cons_t* apply(cons_t* function, cons_t* args);
 cons_t* get_var(cons_t* vars, cons_t* name);
 
 cons_t* function;
@@ -53,7 +55,7 @@ FILE* open_stream(int argc, const char* argv[])
 {
     FILE* file;
     if(argc < 2) return stdin;
-    if(file = fopen(argv[1], "r")){
+    if( (file = fopen(argv[1], "r")) ){
         return file;
     }
     return stdin;
@@ -84,7 +86,7 @@ int get_token(FILE* file, char buf[], int buf_size)
             }
         default:
             buf[len++] = ch;
-            break;cons_t* appry(cons_t* function, cons_t* args);
+            break;
         }
         ch = fgetc(file);
     }
@@ -95,37 +97,41 @@ END_OF_TOKEN:
 
 cons_t* create_cons_cell(void* value, int type)
 {
-    cons_t* cell = (cons_t*)malloc(sizeof(cons_t));
+    cons_t* cell = NULL;
+
+    cell = (cons_t*)malloc(sizeof(cons_t));
 
     cell->type = type;
     switch(type){
-    case STR:{
-        if(value == NULL){
-            cell->type = NIL;
-            break;
-        }
-        size_t len = strlen((char*)value);
+    case STR:
+    {
+        size_t len;
+        assert(value != NULL);
+        len = strlen((char*)value);
         if(len != 0){
-            cell->svalue = (char*)malloc(sizeof(char) * len);
+            cell->svalue = (char*)malloc(sizeof(char) * (len + 1));
             strcpy(cell->svalue, (char*)value);
         }else{
             cell->type = NIL;
         }
         break;
-    }case LIST:{
+    }
+    case LIST:
+    {
+        assert(value != NULL);
         cell->car = (cons_t*)value;
         if(cell->car == NULL){
             cell->type = NIL;
         }
         break;
-    }case INT:{
-        if(value == NULL){
-            cell->type = NIL;
-            break;
-        }
+    }
+    case INT:
+    {
+        assert(value != NULL);
         cell->iValue = *(int*)value;
         break;
-    }case NIL:
+    }
+    case NIL:
     case TRUE:
     default:
         break;
@@ -192,7 +198,7 @@ void print_tree(cons_t* cell)
     case TRUE:
         printf("true");
         break;
-    defaut:
+    default:
         break;
     }
     if(cell->cdr != NULL){
@@ -203,67 +209,82 @@ void print_tree(cons_t* cell)
 
 void free_tree(cons_t* cell)
 {
+    if(cell == NULL){
+        return;
+    }
+    
     if(cell->type == LIST && cell->car != NULL){
         free_tree(cell->car);
-        cell->car = NULL;
     }else if(cell->type == STR && cell->svalue != NULL){
+        cell->svalue[0] = '\0';
         free(cell->svalue);
-        cell->svalue = NULL;
     }
     if(cell->cdr != NULL){
         free_tree(cell->cdr);
-        cell->cdr = NULL;
     }
     memset(cell, 0, sizeof(cons_t)); 
     free(cell);
 }
 
-cons_t* copy_tree(cons_t* tree)
+cons_t* copy_tree(cons_t* tree_head)
+{
+    cons_t* copied_tree_head = NULL;
+    assert(tree_head != NULL);
+    copied_tree_head = copy_cell(tree_head);
+    if(tree_head->cdr != NULL){
+        copied_tree_head->cdr = copy_tree(tree_head->cdr);
+    }
+    return copied_tree_head;
+}
+
+cons_t* copy_cell(cons_t* cell)
 {
     cons_t* copied_cell = NULL;
-    if(tree == NULL){
-        return NULL;   
-    }
-    switch(tree->type){
+    assert(cell != NULL);
+    switch(cell->type){
     case INT:
-        copied_cell = create_cons_cell(&tree->iValue, INT);
+        copied_cell = create_cons_cell(&cell->iValue, INT);
         break;
     case STR:
-        copied_cell = create_cons_cell(tree->svalue, STR);
+        copied_cell = create_cons_cell(cell->svalue, STR);
         break;
     case LIST:
-        copied_cell = create_cons_cell(copy_tree(tree->car), LIST);
+        copied_cell = create_cons_cell(copy_tree(cell->car), LIST);
         break;
     default:
-        copied_cell = create_cons_cell(NULL, tree->type);
+        copied_cell = create_cons_cell(NULL, cell->type);
         break;
-    }
-    if(tree->cdr != NULL){
-        copied_cell->cdr = copy_tree(tree->cdr);
     }
     return copied_cell;
 }
 
 cons_t* eval(cons_t* tree, cons_t* vars)
 {
-    const char* op;
+    const char* op = NULL;
     int lhs, rhs, ret;
     int ret_type;
     
-    cons_t* lhs_cell;
-    cons_t* rhs_cell;
-    cons_t* ret_cell;
+    cons_t* lhs_cell = NULL;
+    cons_t* rhs_cell = NULL;
+    cons_t* rhs_cell_cdr = NULL;
+    cons_t* ret_cell = NULL;
 
     if(tree->type == LIST){
         cons_t* head = tree;
         while(head != NULL){
             cons_t* next = head->cdr;
             if(head->type == LIST){
-                *head = *eval(head->car, vars);
+                cons_t* ret = eval(head->car, vars);
+                *head = *ret;
                 head->cdr = next;
+                free_tree(ret);
             }
             head = next;
         }
+        return tree;
+    }
+
+    if(tree->type != STR){
         return tree;
     }
 
@@ -277,32 +298,57 @@ cons_t* eval(cons_t* tree, cons_t* vars)
     }
 
     if(strcmp(op, "if") == 0){
-        cons_t* condition = tree->cdr;
-        cons_t* on_true = tree->cdr->cdr;
-        cons_t* on_nil = tree->cdr->cdr->cdr;
+        cons_t* condition = NULL;
+        cons_t* on_true = NULL;
+        cons_t* on_nil = NULL;
+
+        condition = tree->cdr;
+        assert(condition != NULL);
+        on_true = condition->cdr;
+        assert(on_true != NULL);
+        on_nil = on_true->cdr;
+        assert(on_nil != NULL);
+
         if(condition->type == LIST){
+            assert(condition->car != NULL);
             *condition = *eval(condition->car, vars);
             condition->cdr = on_true;
         }
+
         if(on_true->type == STR){
             if(vars != NULL){
+                on_true->cdr = NULL;
                 on_true = get_var(vars, on_true);
+                condition->cdr = on_true;
                 on_true->cdr = on_nil;
             }
         }
         if(on_nil->type == STR){
             if(vars != NULL){
+                cons_t* cdr = on_nil->cdr;
+                on_nil->cdr = NULL;
                 on_nil = get_var(vars, on_nil);
                 on_true->cdr = on_nil;
+                on_nil->cdr = cdr;
             }
         }
+
         if(condition->type == NIL){
-            ret_cell = on_nil->type == LIST ? eval(on_nil->car, vars) : copy_tree(on_nil);
-            tree->cdr->cdr->cdr->car = NULL;
+            if(on_nil->type == LIST){
+                ret_cell = eval(on_nil->car, vars);
+                on_nil->car = NULL; 
+            }else{
+                ret_cell = copy_cell(on_nil);
+            }
         }else{
-            ret_cell = on_true->type == LIST ? eval(on_true->car, vars) : copy_tree(on_true);
-            tree->cdr->cdr->car = NULL;
+            if(on_true->type == LIST){
+                ret_cell = eval(on_true->car, vars);
+                on_true->car = NULL;
+            }else{
+                ret_cell = copy_cell(on_true);
+            }
         }
+
         free_tree(tree);
         return ret_cell;
     }
@@ -312,34 +358,51 @@ cons_t* eval(cons_t* tree, cons_t* vars)
         while(head != NULL){
             cons_t* next = head->cdr;
             if(head->type == LIST){
-                *head = *eval(head->car, vars);
+                cons_t* ret = eval(head->car, vars);
+                *head = *ret;
                 head->cdr = next;
+                free_tree(ret);
             }
             head = next;
         }
-        ret_cell = appry(function, tree->cdr);
+        ret_cell = apply(function, tree->cdr);
         free_tree(tree);
         return ret_cell;
     }
 
     lhs_cell = tree->cdr;
     rhs_cell = lhs_cell->cdr;
+    rhs_cell_cdr = rhs_cell->cdr;
 
     if(rhs_cell->type == LIST){
-        rhs_cell = eval(rhs_cell, vars);
+        cons_t* ret = eval(rhs_cell->car, vars);
+        *rhs_cell = *ret;
+        rhs_cell->cdr = rhs_cell_cdr;
+        free_tree(ret);
     }
     if(lhs_cell->type == LIST){
-        lhs_cell = eval(lhs_cell, vars);
+        cons_t* ret = eval(lhs_cell->car, vars);
+        *lhs_cell = *ret;
+        lhs_cell->cdr = rhs_cell;
+        free_tree(ret);
     }
 
+    assert(lhs_cell != NULL);
     if(lhs_cell->type == STR){
         if(vars != NULL){
+            lhs_cell->cdr = NULL;
             lhs_cell = get_var(vars, lhs_cell);
+            tree->cdr = lhs_cell;
+            lhs_cell->cdr = rhs_cell;
         }
     }
+    assert(rhs_cell != NULL);
     if(rhs_cell->type == STR){
         if(vars != NULL){
+            rhs_cell->cdr = NULL;
             rhs_cell = get_var(vars, rhs_cell);
+            lhs_cell->cdr = rhs_cell;
+            rhs_cell->cdr = rhs_cell_cdr;
         }
     }
 
@@ -376,38 +439,56 @@ cons_t* eval(cons_t* tree, cons_t* vars)
 
 cons_t* define_func(cons_t* definition)
 {
-    cons_t* func_name;
+    cons_t* func_name = NULL;
     function = copy_tree(definition);
     func_name = create_cons_cell(definition->svalue, STR);
     free_tree(definition);
     return func_name;
 }
 
-cons_t* appry(cons_t* function, cons_t* args)
+cons_t* apply(cons_t* function, cons_t* args)
 {
-    cons_t* vars = create_cons_cell(function->cdr->car, LIST);
-    cons_t* ret;
+    cons_t* vars = NULL;
+    cons_t* ret = NULL;
+
+    vars = create_cons_cell(function->cdr->car, LIST);
     vars->cdr = create_cons_cell(args, LIST);
+    
     ret = eval(copy_tree(function->cdr->cdr->car), vars);
+    
     vars->cdr->car = NULL;
     vars->car = NULL;
+    
     free_tree(vars);
+    
     return ret;
 }
 
 cons_t* get_var(cons_t* vars, cons_t* name)
 {
-    cons_t* names = vars->car;
-    cons_t* values = vars->cdr->car;
-    while(names != NULL){
+    cons_t* names = NULL;
+    cons_t* values = NULL;
+    
+    assert(vars != NULL);
+    assert(name != NULL);
+    assert(name->type == STR);
+    assert(name->svalue != NULL);
+
+    names = vars->car;
+    values = vars->cdr->car;
+
+    while(values != NULL){
+        assert(names->svalue != NULL);
         if(strcmp(name->svalue, names->svalue) == 0){
-            //printf("%s: %d\n", name->svalue, values->iValue);
+            cons_t* ret = copy_cell(values);
             free_tree(name);
-            return values;
+            return ret;
         }
         names = names->cdr;
         values = values->cdr;
     }
+    free_tree(name);
+    return create_cons_cell(NULL, NIL);
 }
 
 
