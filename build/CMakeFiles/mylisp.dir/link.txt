@@ -1,1 +1,1 @@
-/usr/bin/gcc  -Wall -O0 -g3 -g    CMakeFiles/mylisp.dir/src/main.c.o  -o mylisp -rdynamic 
+/usr/bin/gcc  -Wall -O2 -g3 -g    CMakeFiles/mylisp.dir/src/main.c.o  -o mylisp -rdynamic 
