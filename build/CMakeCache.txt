@@ -154,6 +154,9 @@ CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 //Value Computed by CMake
 mylisp_BINARY_DIR:STATIC=/home/tetsuro/mylisp/build
 
+//Dependencies for target
+mylisp_LIB_DEPENDS:STATIC=
+
 //Value Computed by CMake
 mylisp_SOURCE_DIR:STATIC=/home/tetsuro/mylisp
 

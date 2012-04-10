@@ -69,14 +69,64 @@ CMakeFiles/mylisp.dir/src/main.c.o.provides: CMakeFiles/mylisp.dir/src/main.c.o.
 
 CMakeFiles/mylisp.dir/src/main.c.o.provides.build: CMakeFiles/mylisp.dir/src/main.c.o
 
+CMakeFiles/mylisp.dir/src/treeoperation.c.o: CMakeFiles/mylisp.dir/flags.make
+CMakeFiles/mylisp.dir/src/treeoperation.c.o: ../src/treeoperation.c
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/tetsuro/mylisp/build/CMakeFiles $(CMAKE_PROGRESS_2)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/mylisp.dir/src/treeoperation.c.o"
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/mylisp.dir/src/treeoperation.c.o   -c /home/tetsuro/mylisp/src/treeoperation.c
+
+CMakeFiles/mylisp.dir/src/treeoperation.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/mylisp.dir/src/treeoperation.c.i"
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -E /home/tetsuro/mylisp/src/treeoperation.c > CMakeFiles/mylisp.dir/src/treeoperation.c.i
+
+CMakeFiles/mylisp.dir/src/treeoperation.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/mylisp.dir/src/treeoperation.c.s"
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -S /home/tetsuro/mylisp/src/treeoperation.c -o CMakeFiles/mylisp.dir/src/treeoperation.c.s
+
+CMakeFiles/mylisp.dir/src/treeoperation.c.o.requires:
+.PHONY : CMakeFiles/mylisp.dir/src/treeoperation.c.o.requires
+
+CMakeFiles/mylisp.dir/src/treeoperation.c.o.provides: CMakeFiles/mylisp.dir/src/treeoperation.c.o.requires
+	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/treeoperation.c.o.provides.build
+.PHONY : CMakeFiles/mylisp.dir/src/treeoperation.c.o.provides
+
+CMakeFiles/mylisp.dir/src/treeoperation.c.o.provides.build: CMakeFiles/mylisp.dir/src/treeoperation.c.o
+
+CMakeFiles/mylisp.dir/src/parser.c.o: CMakeFiles/mylisp.dir/flags.make
+CMakeFiles/mylisp.dir/src/parser.c.o: ../src/parser.c
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/tetsuro/mylisp/build/CMakeFiles $(CMAKE_PROGRESS_3)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/mylisp.dir/src/parser.c.o"
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/mylisp.dir/src/parser.c.o   -c /home/tetsuro/mylisp/src/parser.c
+
+CMakeFiles/mylisp.dir/src/parser.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/mylisp.dir/src/parser.c.i"
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -E /home/tetsuro/mylisp/src/parser.c > CMakeFiles/mylisp.dir/src/parser.c.i
+
+CMakeFiles/mylisp.dir/src/parser.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/mylisp.dir/src/parser.c.s"
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -S /home/tetsuro/mylisp/src/parser.c -o CMakeFiles/mylisp.dir/src/parser.c.s
+
+CMakeFiles/mylisp.dir/src/parser.c.o.requires:
+.PHONY : CMakeFiles/mylisp.dir/src/parser.c.o.requires
+
+CMakeFiles/mylisp.dir/src/parser.c.o.provides: CMakeFiles/mylisp.dir/src/parser.c.o.requires
+	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/parser.c.o.provides.build
+.PHONY : CMakeFiles/mylisp.dir/src/parser.c.o.provides
+
+CMakeFiles/mylisp.dir/src/parser.c.o.provides.build: CMakeFiles/mylisp.dir/src/parser.c.o
+
 # Object files for target mylisp
 mylisp_OBJECTS = \
-"CMakeFiles/mylisp.dir/src/main.c.o"
+"CMakeFiles/mylisp.dir/src/main.c.o" \
+"CMakeFiles/mylisp.dir/src/treeoperation.c.o" \
+"CMakeFiles/mylisp.dir/src/parser.c.o"
 
 # External object files for target mylisp
 mylisp_EXTERNAL_OBJECTS =
 
 mylisp: CMakeFiles/mylisp.dir/src/main.c.o
+mylisp: CMakeFiles/mylisp.dir/src/treeoperation.c.o
+mylisp: CMakeFiles/mylisp.dir/src/parser.c.o
 mylisp: CMakeFiles/mylisp.dir/build.make
 mylisp: CMakeFiles/mylisp.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking C executable mylisp"
@@ -87,6 +137,8 @@ CMakeFiles/mylisp.dir/build: mylisp
 .PHONY : CMakeFiles/mylisp.dir/build
 
 CMakeFiles/mylisp.dir/requires: CMakeFiles/mylisp.dir/src/main.c.o.requires
+CMakeFiles/mylisp.dir/requires: CMakeFiles/mylisp.dir/src/treeoperation.c.o.requires
+CMakeFiles/mylisp.dir/requires: CMakeFiles/mylisp.dir/src/parser.c.o.requires
 .PHONY : CMakeFiles/mylisp.dir/requires
 
 CMakeFiles/mylisp.dir/clean:

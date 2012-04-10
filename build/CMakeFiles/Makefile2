@@ -56,7 +56,7 @@ CMAKE_BINARY_DIR = /home/tetsuro/mylisp/build
 CMakeFiles/mylisp.dir/all:
 	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/depend
 	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/tetsuro/mylisp/build/CMakeFiles  1
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/tetsuro/mylisp/build/CMakeFiles  1 2 3
 	@echo "Built target mylisp"
 .PHONY : CMakeFiles/mylisp.dir/all
 
@@ -66,7 +66,7 @@ all: CMakeFiles/mylisp.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/mylisp.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tetsuro/mylisp/build/CMakeFiles 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tetsuro/mylisp/build/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/mylisp.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/tetsuro/mylisp/build/CMakeFiles 0
 .PHONY : CMakeFiles/mylisp.dir/rule

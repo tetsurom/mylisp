@@ -3,6 +3,9 @@ PROJECT(mylisp)
 
 SET(CMAKE_C_FLAGS "-Wall -O2 -g3")
 
-
-ADD_EXECUTABLE(mylisp src/main.c)
+ADD_EXECUTABLE(mylisp
+    src/main.c
+    src/treeoperation.c
+    src/parser.c
+)
 

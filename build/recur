@@ -1,7 +1,0 @@
-(defun func (n)
-    (if (< n 10)
-    (func (+ n 1))
-    10)
-)
-(func 1)
-

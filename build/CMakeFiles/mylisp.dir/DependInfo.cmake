@@ -5,6 +5,8 @@ SET(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_C
   "/home/tetsuro/mylisp/src/main.c" "/home/tetsuro/mylisp/build/CMakeFiles/mylisp.dir/src/main.c.o"
+  "/home/tetsuro/mylisp/src/parser.c" "/home/tetsuro/mylisp/build/CMakeFiles/mylisp.dir/src/parser.c.o"
+  "/home/tetsuro/mylisp/src/treeoperation.c" "/home/tetsuro/mylisp/build/CMakeFiles/mylisp.dir/src/treeoperation.c.o"
   )
 SET(CMAKE_C_COMPILER_ID "GNU")
 

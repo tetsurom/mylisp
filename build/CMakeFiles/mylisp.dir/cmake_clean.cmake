@@ -1,5 +1,7 @@
 FILE(REMOVE_RECURSE
   "CMakeFiles/mylisp.dir/src/main.c.o"
+  "CMakeFiles/mylisp.dir/src/treeoperation.c.o"
+  "CMakeFiles/mylisp.dir/src/parser.c.o"
   "mylisp.pdb"
   "mylisp"
 )

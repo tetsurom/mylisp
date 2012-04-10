@@ -132,6 +132,54 @@ src/main.c.s:
 	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/main.c.s
 .PHONY : src/main.c.s
 
+src/parser.o: src/parser.c.o
+.PHONY : src/parser.o
+
+# target to build an object file
+src/parser.c.o:
+	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/parser.c.o
+.PHONY : src/parser.c.o
+
+src/parser.i: src/parser.c.i
+.PHONY : src/parser.i
+
+# target to preprocess a source file
+src/parser.c.i:
+	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/parser.c.i
+.PHONY : src/parser.c.i
+
+src/parser.s: src/parser.c.s
+.PHONY : src/parser.s
+
+# target to generate assembly for a file
+src/parser.c.s:
+	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/parser.c.s
+.PHONY : src/parser.c.s
+
+src/treeoperation.o: src/treeoperation.c.o
+.PHONY : src/treeoperation.o
+
+# target to build an object file
+src/treeoperation.c.o:
+	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/treeoperation.c.o
+.PHONY : src/treeoperation.c.o
+
+src/treeoperation.i: src/treeoperation.c.i
+.PHONY : src/treeoperation.i
+
+# target to preprocess a source file
+src/treeoperation.c.i:
+	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/treeoperation.c.i
+.PHONY : src/treeoperation.c.i
+
+src/treeoperation.s: src/treeoperation.c.s
+.PHONY : src/treeoperation.s
+
+# target to generate assembly for a file
+src/treeoperation.c.s:
+	$(MAKE) -f CMakeFiles/mylisp.dir/build.make CMakeFiles/mylisp.dir/src/treeoperation.c.s
+.PHONY : src/treeoperation.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -144,6 +192,12 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/parser.o"
+	@echo "... src/parser.i"
+	@echo "... src/parser.s"
+	@echo "... src/treeoperation.o"
+	@echo "... src/treeoperation.i"
+	@echo "... src/treeoperation.s"
 .PHONY : help
 
 
