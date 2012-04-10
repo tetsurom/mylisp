@@ -17,14 +17,14 @@ cons_t* define_func(cons_t* definition);
 cons_t* apply(cons_t* function, cons_t* args);
 cons_t* get_var(cons_t* vars, cons_t* name);
 cons_t* get_var_and_replace(cons_t* vars, cons_t* name);
+cons_t* get_func(cons_t* functions, cons_t* name);
 
-cons_t* function;
+cons_t* g_functions;
 
 int main(int argc, const char* argv[])
 {
     FILE* file = open_stream(argc, argv);
     cons_t* tree = parse_from_stream(file);
-    function = NULL;
     print_tree(tree);
     putchar('\n');
 
@@ -32,8 +32,8 @@ int main(int argc, const char* argv[])
     print_tree(tree);
     putchar('\n');
     
-    if(function != NULL){
-        free_tree(function);
+    if(g_functions != NULL){
+        free_tree(g_functions);
     }
     free_tree(tree);
 
@@ -78,14 +78,8 @@ cons_t* eval_car_and_replace(cons_t* tree, cons_t* vars)
 cons_t* eval(cons_t* tree, cons_t* vars)
 {
     const char* op = NULL;
-    int lhs, rhs, ret;
-    int ret_type = NIL;
     int is_operator = 0;
-
-    cons_t* lhs_cell = NULL;
-    cons_t* rhs_cell = NULL;
-    cons_t* ret_cell = NULL;
-
+   
     if(tree->type == LIST){
         eval_all(tree, vars); 
         return tree;
@@ -94,63 +88,6 @@ cons_t* eval(cons_t* tree, cons_t* vars)
     }
 
     op = tree->svalue;
-
-    if(strcmp(op, "defun") == 0){
-        ret_cell = define_func(tree->cdr);
-        tree->cdr = NULL;
-        free_tree(tree);
-        return ret_cell;
-    }
-
-    if(strcmp(op, "if") == 0){
-        cons_t* condition = NULL;
-        cons_t* on_true = NULL;
-        cons_t* on_nil = NULL;
-
-        condition = tree->cdr;
-        assert(condition != NULL);
-        on_true = condition->cdr;
-        assert(on_true != NULL);
-        on_nil = on_true->cdr;
-        assert(on_nil != NULL);
-
-        if(condition->type == LIST){
-            eval_car_and_replace(condition, vars);
-        }
-
-        if(on_true->type == STR && vars != NULL){
-            get_var_and_replace(vars, on_true);
-        }
-        if(on_nil->type == STR && vars != NULL){
-            get_var_and_replace(vars, on_nil);
-        }
-
-        if(condition->type == NIL){
-            if(on_nil->type == LIST){
-                ret_cell = eval(on_nil->car, vars);
-                on_nil->car = NULL; 
-            }else{
-                ret_cell = copy_cell(on_nil);
-            }
-        }else{
-            if(on_true->type == LIST){
-                ret_cell = eval(on_true->car, vars);
-                on_true->car = NULL;
-            }else{
-                ret_cell = copy_cell(on_true);
-            }
-        }
-
-        free_tree(tree);
-        return ret_cell;
-    }
-
-    if(function != NULL && strcmp(function->svalue, op) == 0){
-        eval_all(tree->cdr, vars);
-        ret_cell = apply(function, tree->cdr);
-        free_tree(tree);
-        return ret_cell;
-    }
 
     if(strlen(op) == 1){
         switch(op[0]){
@@ -169,6 +106,11 @@ cons_t* eval(cons_t* tree, cons_t* vars)
     }
 
     if(is_operator){
+        int lhs, rhs, ret;
+        int ret_type = NIL;
+
+        cons_t* lhs_cell = NULL;
+        cons_t* rhs_cell = NULL;
 
         assert(tree->cdr != NULL);
         assert(tree->cdr->cdr != NULL);
@@ -230,6 +172,68 @@ cons_t* eval(cons_t* tree, cons_t* vars)
         return create_cons_cell(&ret, ret_type);
     }
 
+    if(strcmp(op, "defun") == 0){
+        cons_t* ret_cell = define_func(tree->cdr);
+        tree->cdr = NULL;
+        free_tree(tree);
+        return ret_cell;
+    }
+
+    if(strcmp(op, "if") == 0){
+        cons_t* condition = NULL;
+        cons_t* on_true = NULL;
+        cons_t* on_nil = NULL;
+        cons_t* ret_cell = NULL;
+
+        condition = tree->cdr;
+        assert(condition != NULL);
+        on_true = condition->cdr;
+        assert(on_true != NULL);
+        on_nil = on_true->cdr;
+        assert(on_nil != NULL);
+
+        if(condition->type == LIST){
+            eval_car_and_replace(condition, vars);
+        }
+
+        if(on_true->type == STR && vars != NULL){
+            get_var_and_replace(vars, on_true);
+        }
+        if(on_nil->type == STR && vars != NULL){
+            get_var_and_replace(vars, on_nil);
+        }
+
+        if(condition->type == NIL){
+            if(on_nil->type == LIST){
+                ret_cell = eval(on_nil->car, vars);
+                on_nil->car = NULL; 
+            }else{
+                ret_cell = copy_cell(on_nil);
+            }
+        }else{
+            if(on_true->type == LIST){
+                ret_cell = eval(on_true->car, vars);
+                on_true->car = NULL;
+            }else{
+                ret_cell = copy_cell(on_true);
+            }
+        }
+
+        free_tree(tree);
+        return ret_cell;
+    }
+
+    {
+        cons_t* func = get_func(g_functions, tree);
+        if(func){
+            cons_t* ret_cell;
+            eval_all(tree->cdr, vars);
+            ret_cell = apply(func, tree->cdr);
+            free_tree(tree);
+            return ret_cell;
+        }
+    }
+
     if(vars){
         if(tree->cdr){
             free_tree(tree->cdr);
@@ -245,14 +249,28 @@ cons_t* eval(cons_t* tree, cons_t* vars)
 cons_t* define_func(cons_t* definition)
 {
     cons_t* func_name = NULL;
-    function = copy_tree(definition);
-    func_name = create_cons_cell(definition->svalue, STR);
-    free_tree(definition);
+    cons_t* function_cell = create_cons_cell(copy_tree(definition), LIST);
+    func_name = definition;
+    free_tree(definition->cdr);
+    func_name->cdr = NULL;
+
+    if(g_functions == NULL){
+        g_functions = function_cell;
+    }else{
+        cons_t* head = g_functions;
+        while(head->cdr != NULL){
+            head = head->cdr;
+        }
+        head->cdr = function_cell;
+    }
+
     return func_name;
 }
 
 cons_t* apply(cons_t* function, cons_t* args)
 {
+    assert(function->type == STR);
+    
     cons_t* vars = NULL;
     cons_t* ret = NULL;
     
@@ -310,4 +328,24 @@ cons_t* get_var_and_replace(cons_t* vars, cons_t* name)
     return name;
 }
 
+cons_t* get_func(cons_t* functions, cons_t* name)
+{
+    cons_t* func;
+   
+    if(functions == NULL){
+        return NULL;
+    }
+
+    assert(name != NULL);
+    assert(name->type == STR);
+    assert(name->svalue != NULL);
+
+    for(func = functions; func != NULL; func = func->cdr){
+        assert(func->type == LIST && func->car->type == STR);
+        if(strcmp(name->svalue, func->car->svalue) == 0){
+            return func->car;
+        }
+    }
+    return NULL; 
+}
 
