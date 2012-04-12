@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(mylisp)
 
-SET(CMAKE_C_FLAGS "-Wall -O2 -g3")
+SET(CMAKE_C_FLAGS "-Wall -O0 -g3 -pg")
 
 ADD_EXECUTABLE(mylisp
     src/main.c
@@ -10,5 +10,6 @@ ADD_EXECUTABLE(mylisp
     src/variable.c
     src/function.c
     src/eval.c
+    src/stack.c
 )
 

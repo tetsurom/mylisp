@@ -10,8 +10,11 @@
 #include "variable.h"
 #include "function.h"
 #include "eval.h"
+#include "stack.h"
 
 FILE* open_stream(int argc, const char* argv[]);
+
+stack_t* g_stack;
 
 int main(int argc, const char* argv[])
 {
@@ -20,11 +23,13 @@ int main(int argc, const char* argv[])
     print_tree(tree);
     putchar('\n');
 
+    g_stack = stack_create(sizeof(cons_t), 1024);
+
     g_variables = create_cons_cell(NULL, NIL);
     g_variables->cdr = create_cons_cell(NULL, NIL);
 
-    tree = eval(tree, g_variables);
-    print_tree(tree);
+    tree = eval(tree, g_variables, g_stack);
+    print_tree((cons_t*)stack_get(g_stack, -1));
     putchar('\n');
     
     if(g_functions){
@@ -33,6 +38,7 @@ int main(int argc, const char* argv[])
     if(g_variables){
         free_tree(g_variables);
     }
+    stack_destroy(g_stack);
     free_tree(tree);
 
     return 0;

@@ -7,11 +7,15 @@
 #include <assert.h>
 #include "variable.h"
 #include "treeoperation.h"
+#include "stack.h"
 
 cons_t* g_variables;
 
-cons_t* get_var(cons_t* vars, cons_t* name)
+cons_t NIL_CELL;
+
+void get_var(cons_t* vars, stack_t* stack)
 {
+    cons_t* name = NULL;
     cons_t* names = NULL;
     cons_t* values = NULL;
     cons_t* upper_vars = NULL;
@@ -24,23 +28,29 @@ cons_t* get_var(cons_t* vars, cons_t* name)
     values = vars->cdr->car;
     upper_vars = vars->cdr->cdr;
 
+    name = (cons_t*)stack_get(stack, -1);
+
     while(values != NULL){
         assert(names->svalue != NULL);
         if(strcmp(name->svalue, names->svalue) == 0){
-            cons_t* ret = copy_cell(values);
-            return ret;
+            stack_pop(stack);
+            stack_push(stack, values);
+            ((cons_t*)stack_get(stack, -1))->cdr = NULL;
+            return;
         }
         names = names->cdr;
         values = values->cdr;
     }
     if(upper_vars){
-        return get_var(upper_vars, name);
+        get_var(upper_vars, stack);
+        return;
     }
-    return create_cons_cell(NULL, NIL);
+    stack_push(stack, &NIL_CELL);
 }
 
-cons_t* get_var_and_replace(cons_t* vars, cons_t* name)
+cons_t* get_var_and_replace(cons_t* vars, stack_t* stack)
 {
+    /*
     assert(name->type == STR);
     cons_t* cdr = name->cdr;
     cons_t* ret = get_var(vars, name);
@@ -49,31 +59,33 @@ cons_t* get_var_and_replace(cons_t* vars, cons_t* name)
     name->cdr = cdr;
     ret->car = NULL;
     free_tree(ret);
-    return name;
+    */
+    return NULL;
 }
 
-cons_t* set_variable(cons_t* vars, cons_t* name, cons_t* value)
+void set_variable(cons_t* vars, stack_t* stack)
 {
     cons_t* names = NULL;
     cons_t* values = NULL;
-    
+    cons_t* name = NULL;
+    cons_t* value = NULL;
+
     assert(vars != NULL);
     assert(name != NULL);
     assert(name->type == STR);
     assert(name->svalue != NULL);
-    
-    if(value->cdr){
-        free_tree(value->cdr);
-        value->cdr = NULL;
-    }
-    name->cdr = NULL;   
+   
+    name = (cons_t*)stack_get(stack, -2);
+    value = (cons_t*)stack_get(stack, -1);
  
     if(vars->type == NIL){
         vars->type = LIST;
-        vars->car = name;
+        vars->car = copy_cell(name);
         vars->cdr->type = LIST;
-        vars->cdr->car = value;
-        return copy_cell(value);
+        vars->cdr->car = copy_cell(value);
+        *name = *value;
+        stack_pop(stack);
+        return;
     }
 
     names = vars->car;
@@ -91,10 +103,8 @@ cons_t* set_variable(cons_t* vars, cons_t* name, cons_t* value)
             }
             *values = *value;
             values->cdr = cdr;
-            value->svalue = NULL;
-            free_tree(name);
-            free_tree(value);
-            return ret;
+            *name = *value;
+            stack_pop(stack);
         }
         if(names->cdr){
             assert(values->cdr);
@@ -104,19 +114,13 @@ cons_t* set_variable(cons_t* vars, cons_t* name, cons_t* value)
             break;
         }
     }
-    if(value->cdr){
-        free_tree(value->cdr);
-        value->cdr = NULL;
-    }
-    if(name->cdr){
-        free_tree(name->cdr);
-        name->cdr = NULL;
-    }
 
-    values->cdr = value;
-    names->cdr = name;
+    values->cdr = copy_cell(value);
+    names->cdr = copy_cell(name);
+    *name = *value;
+    stack_pop(stack);
 
-    return copy_cell(value);
+    return;
 }
 
 

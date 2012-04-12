@@ -9,25 +9,25 @@
 #include "variable.h"
 #include "function.h"
 #include "eval.h"
+#include "stack.h"
 
-
-cons_t* eval_all(cons_t* head, cons_t* vars)
+cons_t* eval_all(cons_t* head, cons_t* vars, stack_t* stack)
 {
     while(head != NULL){
         cons_t* next = head->cdr;
         if(head->type == LIST){
-            eval_car_and_replace(head, vars);
+            eval_car_and_replace(head, vars, stack);
         }
         head = next;
     }
     return head;
 }
 
-cons_t* eval_car_and_replace(cons_t* tree, cons_t* vars)
+cons_t* eval_car_and_replace(cons_t* tree, cons_t* vars, stack_t* stack)
 {
     assert(tree->type == LIST && tree->car != NULL);
     cons_t* cdr = tree->cdr;
-    cons_t* ret = eval(tree->car, vars);
+    cons_t* ret = eval(tree->car, vars, stack);
     *tree = *ret;
     tree->cdr = cdr;
     ret->car = NULL;
@@ -35,13 +35,14 @@ cons_t* eval_car_and_replace(cons_t* tree, cons_t* vars)
     return tree;
 }
 
-cons_t* eval(cons_t* tree, cons_t* vars)
+cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack)
 {
     const char* op = NULL;
     int is_operator = 0;
    
     if(tree->type == LIST){
-        eval_all(tree, vars); 
+        eval(tree->car, vars, stack);
+        //eval_all(tree, vars, stack); 
         return tree;
     }else if(tree->type != STR){
         return tree;
@@ -66,70 +67,84 @@ cons_t* eval(cons_t* tree, cons_t* vars)
     }
 
     if(is_operator){
-        int lhs, rhs, ret;
-        int ret_type = NIL;
+        int top = stack->top;
+        int argc = 0;
+        int i;
+        cons_t ret_cell;
+        cons_t* head;
+        cons_t* temp;
+        ret_cell.cdr = NULL;
+        ret_cell.type = TRUE;
 
-        cons_t* lhs_cell = NULL;
-        cons_t* rhs_cell = NULL;
-
-        assert(tree->cdr != NULL);
-        assert(tree->cdr->cdr != NULL);
-
-        lhs_cell = tree->cdr;
-        rhs_cell = lhs_cell->cdr;
-
-        if(rhs_cell->type == LIST){
-            eval_car_and_replace(rhs_cell, vars);
+        for(head = tree->cdr; head; head = head->cdr){
+            if(head->type == LIST){
+                eval(head->car, vars, stack);
+            }else{
+                stack_push(stack, head);
+                /*
+                while(((cons_t*)stack_get(stack, -1))->type == STR){
+                    get_var(vars, stack);
+                }
+                */
+            }
+            ++argc;
         }
-        if(lhs_cell->type == LIST){
-            eval_car_and_replace(lhs_cell, vars);
-        }
+               
+        temp = (cons_t*)stack_get(stack, -argc);
+        assert(temp->type == INT);
+        ret_cell.iValue = temp->iValue;
 
-        while(lhs_cell->type == STR && vars != NULL){
-            get_var_and_replace(vars, lhs_cell);
+        for(i = 1; i < argc; ++i){
+            int rhs;
+            temp = (cons_t*)stack_get(stack, -argc + i);
+            assert(temp->type == INT);
+            rhs = temp->iValue;
+            switch(op[0]){
+            case '+':
+                ret_cell.iValue += rhs;
+                ret_cell.type = INT;
+                break;
+            case '-':
+                ret_cell.iValue -= rhs;
+                ret_cell.type = INT;
+                break;
+            case '/':
+                ret_cell.iValue /= rhs;
+                ret_cell.type = INT;
+                break;
+            case '*':
+                ret_cell.iValue *= rhs;
+                ret_cell.type = INT;
+                break;
+            case '<':
+                if(ret_cell.type == TRUE){
+                    ret_cell.type = ret_cell.iValue < rhs ? TRUE : NIL;
+                    ret_cell.iValue = rhs;
+                }else{
+                    ret_cell.type = NIL;
+                }
+                break;
+            case '>':
+                if(ret_cell.type == TRUE){
+                    ret_cell.type = ret_cell.iValue > rhs ? TRUE : NIL;
+                    ret_cell.iValue = rhs;
+                }else{
+                    ret_cell.type = NIL;
+                }
+                break;
+            case '=':
+                if(ret_cell.type == TRUE){
+                    ret_cell.type = ret_cell.iValue == rhs ? TRUE : NIL;
+                    ret_cell.iValue = rhs;
+                }else{
+                    ret_cell.type = NIL;
+                }
+                break;
+            }
         }
-        while(rhs_cell->type == STR && vars != NULL){
-            get_var_and_replace(vars, rhs_cell);
-        }
-        
-        assert(lhs_cell->type == INT);
-        assert(rhs_cell->type == INT);
-
-        lhs = lhs_cell->iValue;
-        rhs = rhs_cell->iValue;
-
-        switch(op[0]){
-        case '+':
-            ret = lhs + rhs;
-            ret_type = INT;
-            break;
-        case '-':
-            ret = lhs - rhs;
-            ret_type = INT;
-            break;
-        case '/':
-            ret = lhs / rhs;
-            ret_type = INT;
-            break;
-        case '*':
-            ret = lhs * rhs;
-            ret_type = INT;
-            break;
-        case '<':
-            ret = lhs < rhs;
-            ret_type = ret ? TRUE : NIL;
-            break;
-        case '>':
-            ret = lhs > rhs;
-            ret_type = ret ? TRUE : NIL;
-            break;
-        case '=':
-            ret = lhs == rhs;
-            ret_type = ret ? TRUE : NIL;
-            break;
-        }
-        free_tree(tree);
-        return create_cons_cell(&ret, ret_type);
+        stack_settop(stack, top);
+        stack_push(stack, (void*)&ret_cell);
+        return NULL;
     }
 
     if(strcmp(op, "defun") == 0){
@@ -139,7 +154,8 @@ cons_t* eval(cons_t* tree, cons_t* vars)
         return ret_cell;
     }
     if(strcmp(op, "setq") == 0){
-        cons_t* ret_cell = set_variable(vars, tree->cdr, tree->cdr->cdr);
+        cons_t* ret_cell = NULL;
+        set_variable(vars, stack);
         tree->cdr = NULL;
         free_tree(tree);
         return ret_cell;
@@ -158,26 +174,26 @@ cons_t* eval(cons_t* tree, cons_t* vars)
         assert(on_nil != NULL);
 
         if(condition->type == LIST){
-            eval_car_and_replace(condition, vars);
+            eval_car_and_replace(condition, vars, stack);
         }
 
         if(on_true->type == STR && vars != NULL){
-            get_var_and_replace(vars, on_true);
+            //get_var_and_replace(vars, on_true);
         }
         if(on_nil->type == STR && vars != NULL){
-            get_var_and_replace(vars, on_nil);
+            //get_var_and_replace(vars, on_nil);
         }
 
         if(condition->type == NIL){
             if(on_nil->type == LIST){
-                ret_cell = eval(on_nil->car, vars);
+                ret_cell = eval(on_nil->car, vars, stack);
                 on_nil->car = NULL; 
             }else{
                 ret_cell = copy_cell(on_nil);
             }
         }else{
             if(on_true->type == LIST){
-                ret_cell = eval(on_true->car, vars);
+                ret_cell = eval(on_true->car, vars, stack);
                 on_true->car = NULL;
             }else{
                 ret_cell = copy_cell(on_true);
@@ -192,8 +208,8 @@ cons_t* eval(cons_t* tree, cons_t* vars)
         cons_t* func = get_func(g_functions, tree);
         if(func){
             cons_t* ret_cell;
-            eval_all(tree->cdr, vars);
-            ret_cell = apply(func, tree->cdr, vars);
+            eval_all(tree->cdr, vars, stack);
+            ret_cell = apply(func, tree->cdr, vars, stack);
             free_tree(tree);
             return ret_cell;
         }
@@ -204,14 +220,14 @@ cons_t* eval(cons_t* tree, cons_t* vars)
             free_tree(tree->cdr);
             tree->cdr = NULL;
         }
-        return get_var_and_replace(vars, tree);
+        return NULL;//get_var_and_replace(vars, tree);
     }
 
     free_tree(tree);
     return create_cons_cell(NULL, NIL);
 }
 
-cons_t* apply(cons_t* function, cons_t* args, cons_t* upper_vars)
+cons_t* apply(cons_t* function, cons_t* args, cons_t* upper_vars, stack_t* stack)
 {
     assert(function->type == STR);
     
@@ -225,7 +241,7 @@ cons_t* apply(cons_t* function, cons_t* args, cons_t* upper_vars)
     vars->cdr = create_cons_cell(args, LIST);
     vars->cdr->cdr = upper_vars;
     
-    ret = eval(copy_tree(proc), vars);
+    ret = eval(copy_tree(proc), vars, stack);
     
     vars->cdr->cdr = NULL;
     vars->cdr->car = NULL;
