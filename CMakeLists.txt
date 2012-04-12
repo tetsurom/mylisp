@@ -7,5 +7,8 @@ ADD_EXECUTABLE(mylisp
     src/main.c
     src/treeoperation.c
     src/parser.c
+    src/variable.c
+    src/function.c
+    src/eval.c
 )
 
