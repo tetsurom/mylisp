@@ -82,10 +82,39 @@ cons_t* get_tree(FILE* file, char buf[], int buf_size)
                 type = INT;
             }
             if(type == STR){
-                cell = create_cons_cell(buf, STR);
+                if(strcmp(buf, "setq") == 0){
+                    cell = create_cons_cell(NULL, SETQ);
+                }else if(strcmp(buf, "defun") == 0){
+                    cell = create_cons_cell(NULL, DEFUN);
+                }else if(strcmp(buf, "if") == 0){
+                    cell = create_cons_cell(NULL, IF);
+                }else if(strcmp(buf, "<=") == 0){
+                    cell = create_cons_cell(NULL, OP_LEQ);
+                }else if(strcmp(buf, ">=") == 0){
+                    cell = create_cons_cell(NULL, OP_GEQ);
+                }else if(strlen(buf) == 1){
+                    switch(buf[0]){
+                    case '+': cell = create_cons_cell(NULL, OP_ADD); break;
+                    case '-': cell = create_cons_cell(NULL, OP_SUB); break;
+                    case '*': cell = create_cons_cell(NULL, OP_MUL); break;
+                    case '/': cell = create_cons_cell(NULL, OP_DIV); break;
+                    case '=': cell = create_cons_cell(NULL, OP_EQ); break;
+                    case '<': cell = create_cons_cell(NULL, OP_L); break;
+                    case '>': cell = create_cons_cell(NULL, OP_G); break;
+                    defalut: cell = NULL; break;
+                    }
+                    if(!cell){
+                        cell = create_cons_cell(buf, STR);
+                    }
+                }else{
+                    cell = create_cons_cell(buf, STR);
+                }
             }else{
                 cell = create_cons_cell(&sl, INT);
             }
+        }
+        if(!cell){
+            cell = create_cons_cell(NULL, NIL);
         }
         cell->cdr = get_tree(file, buf, buf_size);
     }

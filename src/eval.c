@@ -21,21 +21,32 @@ void lisp_eval(lisp_t* L, cons_t* tree, int sp_funcparam)
     {
         cons_t* head = tree->car;
         int argc = 0;
-        assert(head->type == STR);
+        //assert(head->type == STR);
         stack_push(L->g_stack, head);
-        if(strcmp(head->svalue, "setq") == 0){
+        switch(head->type){
+        case SETQ:
+        {
             head = head->cdr;
             stack_push(L->g_stack, head);
             ++argc;
+            for(head = head->cdr; head; head = head->cdr){
+                lisp_eval(L, head, sp_funcparam);
+                ++argc;
+            }
+            set_variable(vars, L->g_stack);
+            stack_remove(L->g_stack, -2);
+            break;
         }
-        if(strcmp(head->svalue, "defun") == 0){
+        case DEFUN:
+        {
             stack_pop(L->g_stack); // pop "defun"
             stack_push(L->g_stack, head->cdr);
             define_func(L, head->cdr);
             ((cons_t*)stack_top(L->g_stack))->cdr = NULL;
             break;
         }
-        if(strcmp(head->svalue, "if") == 0){
+        case IF:
+        {
             cons_t* condition;
             head = head->cdr;
             stack_pop(L->g_stack); // pop "if"
@@ -52,13 +63,16 @@ void lisp_eval(lisp_t* L, cons_t* tree, int sp_funcparam)
             assert(L->g_stack->top == top_before + 1);
             break;
         }
-        for(head = head->cdr; head; head = head->cdr){
-            lisp_eval(L, head, sp_funcparam);
-            ++argc;
+        default:
+            for(head = head->cdr; head; head = head->cdr){
+                lisp_eval(L, head, sp_funcparam);
+                ++argc;
+            }
+            assert(L->g_stack->top == top_before + argc + 1);
+            lisp_call(L, argc, sp_funcparam);
+            assert(L->g_stack->top == top_before + 1);
+            break;
         }
-        assert(L->g_stack->top == top_before + argc + 1);
-        lisp_call(L, argc, sp_funcparam);
-        assert(L->g_stack->top == top_before + 1);
         break;
     }
     case STR:
@@ -89,27 +103,15 @@ void lisp_call(lisp_t* L, int argc, int sp_funcparam)
     stack_t* stack = L->g_stack;
     cons_t* function_cell = (cons_t*)stack_get(stack, -argc - 1);
     char* function = function_cell->svalue;
-    int is_operator = 0;
     int top = stack->top;
-    if(strlen(function) == 1){
-        switch(function[0]){
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-        case '=':
-        case '<':
-        case '>':
-            is_operator = 1;
-            break;
-        default:
-            break;
-        }
-    }
+    int is_operator = function_cell->type >= OP_ADD && function_cell->type <= OP_GEQ;
+    
+
     if(is_operator){
         int i;
         cons_t ret_cell;
         cons_t* temp;
+        int type = function_cell->type;
         ret_cell.cdr = NULL;
         ret_cell.type = TRUE;
 
@@ -122,24 +124,24 @@ void lisp_call(lisp_t* L, int argc, int sp_funcparam)
             temp = (cons_t*)stack_get(stack, -argc + i);
             assert(temp->type == INT);
             rhs = temp->iValue;
-            switch(function[0]){
-            case '+':
+            switch(type){
+            case OP_ADD:
                 ret_cell.iValue += rhs;
                 ret_cell.type = INT;
                 break;
-            case '-':
+            case OP_SUB:
                 ret_cell.iValue -= rhs;
                 ret_cell.type = INT;
                 break;
-            case '/':
+            case OP_DIV:
                 ret_cell.iValue /= rhs;
                 ret_cell.type = INT;
                 break;
-            case '*':
+            case OP_MUL:
                 ret_cell.iValue *= rhs;
                 ret_cell.type = INT;
                 break;
-            case '<':
+            case OP_L:
                 if(ret_cell.type == TRUE){
                     ret_cell.type = ret_cell.iValue < rhs ? TRUE : NIL;
                     ret_cell.iValue = rhs;
@@ -147,7 +149,7 @@ void lisp_call(lisp_t* L, int argc, int sp_funcparam)
                     ret_cell.type = NIL;
                 }
                 break;
-            case '>':
+            case OP_G:
                 if(ret_cell.type == TRUE){
                     ret_cell.type = ret_cell.iValue > rhs ? TRUE : NIL;
                     ret_cell.iValue = rhs;
@@ -155,7 +157,23 @@ void lisp_call(lisp_t* L, int argc, int sp_funcparam)
                     ret_cell.type = NIL;
                 }
                 break;
-            case '=':
+            case OP_LEQ:
+                if(ret_cell.type == TRUE){
+                    ret_cell.type = ret_cell.iValue <= rhs ? TRUE : NIL;
+                    ret_cell.iValue = rhs;
+                }else{
+                    ret_cell.type = NIL;
+                }
+                break;
+            case OP_GEQ:
+                if(ret_cell.type == TRUE){
+                    ret_cell.type = ret_cell.iValue >= rhs ? TRUE : NIL;
+                    ret_cell.iValue = rhs;
+                }else{
+                    ret_cell.type = NIL;
+                }
+                break;
+            case OP_EQ:
                 if(ret_cell.type == TRUE){
                     ret_cell.type = ret_cell.iValue == rhs ? TRUE : NIL;
                     ret_cell.iValue = rhs;
@@ -167,12 +185,7 @@ void lisp_call(lisp_t* L, int argc, int sp_funcparam)
         }
         stack_settop(stack, top - argc - 1);
         stack_push(stack, (void*)&ret_cell);
-    }
-    if(strcmp(function, "setq") == 0){
-        set_variable(L->g_variables, stack);
-        stack_remove(stack, -2);
-    }
-    {
+    }else{
         cons_t* func = get_func(L, function);
         if(func){
             cons_t* proc = func->cdr->cdr;

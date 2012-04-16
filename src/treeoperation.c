@@ -43,9 +43,10 @@ cons_t* create_cons_cell(void* value, int type)
         cell->iValue = *(int*)value;
         break;
     }
-    case NIL:
     case TRUE:
+    case NIL:
     default:
+        cell->iValue = 0;
         break;
     }
     cell->cdr = NULL;
@@ -74,6 +75,43 @@ void print_tree(cons_t* cell)
         break;
     case PARAM:
         printf("$%d", cell->iValue);
+        break;
+    case SETQ:
+        printf("setq");
+        break;
+    case DEFUN:
+        printf("defun");
+        break;
+    case IF:
+        printf("if");
+        break;
+    case OP_ADD:
+        printf("+");
+        break;
+    case OP_SUB:
+        printf("-");
+        break;
+    case OP_MUL:
+        printf("*");
+        break; 
+    case OP_DIV:
+        printf("/");
+        break;
+    case OP_EQ:
+        printf("=");
+        break;
+    case OP_G:
+        printf(">");
+        break;
+    case OP_L:
+        printf("<");
+        break;
+    case OP_GEQ:
+        printf(">=");
+        break;
+    case OP_LEQ:
+        printf("<=");
+        break;
     default:
         break;
     }
