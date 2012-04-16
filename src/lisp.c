@@ -26,6 +26,10 @@ lisp_t* lisp_open()
 void lisp_close(lisp_t* L)
 {
     if(L->g_functions){
+        cons_t* head = L->g_functions;
+        for(; head; head = head->cdr){
+            head->car = NULL;
+        }
         free_tree(L->g_functions);
     }
     if(L->g_variables){
