@@ -7,14 +7,16 @@
 #include <assert.h>
 #include "treeoperation.h"
 #include "parser.h"
+#include "stack.h"
 
-cons_t* parse_from_stream(FILE* file)
+int get_token(FILE* file, char buf[], int buf_size);
+struct cons_t* get_tree(FILE* file, char buf[], int buf_size);
+
+cons_t* lisp_parseFromStream(lisp_t* L, FILE* file)
 {
     char buf[1024];
     cons_t* tree = get_tree(file, buf, sizeof(buf) / sizeof(char));
-    if(file != stdin){
-        fclose(file);
-    }
+    //stack_push(L->g_stack, tree);
     return tree;
 }
 

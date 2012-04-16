@@ -10,48 +10,89 @@
 #include "function.h"
 #include "eval.h"
 #include "stack.h"
+#include "lisp.h"
 
-cons_t* eval_all(cons_t* head, cons_t* vars, stack_t* stack)
+void lisp_eval(lisp_t* L, cons_t* tree, int sp_funcparam)
 {
-    while(head != NULL){
-        cons_t* next = head->cdr;
-        if(head->type == LIST){
-            eval_car_and_replace(head, vars, stack);
+    cons_t* vars = L->g_variables;
+    int top_before = L->g_stack->top;
+    switch(tree->type){
+    case LIST:
+    {
+        cons_t* head = tree->car;
+        int argc = 0;
+        assert(head->type == STR);
+        stack_push(L->g_stack, head);
+        if(strcmp(head->svalue, "setq") == 0){
+            head = head->cdr;
+            stack_push(L->g_stack, head);
+            ++argc;
         }
-        head = next;
+        if(strcmp(head->svalue, "defun") == 0){
+            stack_pop(L->g_stack); // pop "defun"
+            stack_push(L->g_stack, head->cdr);
+            define_func(L, head->cdr);
+            ((cons_t*)stack_top(L->g_stack))->cdr = NULL;
+            break;
+        }
+        if(strcmp(head->svalue, "if") == 0){
+            cons_t* condition;
+            head = head->cdr;
+            stack_pop(L->g_stack); // pop "if"
+            lisp_eval(L, head, sp_funcparam);
+            condition = (cons_t*)stack_top(L->g_stack);
+            if(condition->type != NIL){
+                head = head->cdr;
+            }else{
+                head = head->cdr->cdr;
+            }
+            stack_pop(L->g_stack); // pop condition
+            lisp_eval(L, head, sp_funcparam);
+            ((cons_t*)stack_top(L->g_stack))->cdr = NULL;
+            assert(L->g_stack->top == top_before + 1);
+            break;
+        }
+        for(head = head->cdr; head; head = head->cdr){
+            lisp_eval(L, head, sp_funcparam);
+            ++argc;
+        }
+        assert(L->g_stack->top == top_before + argc + 1);
+        lisp_call(L, argc, sp_funcparam);
+        assert(L->g_stack->top == top_before + 1);
+        break;
     }
-    return head;
+    case STR:
+        stack_push(L->g_stack, tree);
+        while(((cons_t*)stack_get(L->g_stack, -1))->type == STR){
+            get_var(vars, L->g_stack);
+        }
+        assert(L->g_stack->top == top_before + 1);
+        break;
+    case PARAM:
+    {
+        int param_top = sp_funcparam + 1;
+        cons_t* p = (cons_t*)stack_get(L->g_stack, param_top + tree->iValue);
+        stack_push(L->g_stack, p);
+        assert(L->g_stack->top == top_before + 1);
+        break;
+    }
+    default:
+        stack_push(L->g_stack, tree);
+        assert(L->g_stack->top == top_before + 1);
+        break;
+    }
+    assert(L->g_stack->top == top_before + 1);
 }
 
-cons_t* eval_car_and_replace(cons_t* tree, cons_t* vars, stack_t* stack)
+void lisp_call(lisp_t* L, int argc, int sp_funcparam)
 {
-    assert(tree->type == LIST && tree->car != NULL);
-    cons_t* cdr = tree->cdr;
-    cons_t* ret = eval(tree->car, vars, stack);
-    *tree = *ret;
-    tree->cdr = cdr;
-    ret->car = NULL;
-    free_tree(ret);
-    return tree;
-}
-
-cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack)
-{
-    const char* op = NULL;
+    stack_t* stack = L->g_stack;
+    cons_t* function_cell = (cons_t*)stack_get(stack, -argc - 1);
+    char* function = function_cell->svalue;
     int is_operator = 0;
-   
-    if(tree->type == LIST){
-        eval(tree->car, vars, stack);
-        //eval_all(tree, vars, stack); 
-        return tree;
-    }else if(tree->type != STR){
-        return tree;
-    }
-
-    op = tree->svalue;
-
-    if(strlen(op) == 1){
-        switch(op[0]){
+    int top = stack->top;
+    if(strlen(function) == 1){
+        switch(function[0]){
         case '+':
         case '-':
         case '*':
@@ -65,31 +106,13 @@ cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack)
             break;
         }
     }
-
     if(is_operator){
-        int top = stack->top;
-        int argc = 0;
         int i;
         cons_t ret_cell;
-        cons_t* head;
         cons_t* temp;
         ret_cell.cdr = NULL;
         ret_cell.type = TRUE;
 
-        for(head = tree->cdr; head; head = head->cdr){
-            if(head->type == LIST){
-                eval(head->car, vars, stack);
-            }else{
-                stack_push(stack, head);
-                /*
-                while(((cons_t*)stack_get(stack, -1))->type == STR){
-                    get_var(vars, stack);
-                }
-                */
-            }
-            ++argc;
-        }
-               
         temp = (cons_t*)stack_get(stack, -argc);
         assert(temp->type == INT);
         ret_cell.iValue = temp->iValue;
@@ -99,7 +122,7 @@ cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack)
             temp = (cons_t*)stack_get(stack, -argc + i);
             assert(temp->type == INT);
             rhs = temp->iValue;
-            switch(op[0]){
+            switch(function[0]){
             case '+':
                 ret_cell.iValue += rhs;
                 ret_cell.type = INT;
@@ -142,24 +165,31 @@ cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack)
                 break;
             }
         }
-        stack_settop(stack, top);
+        stack_settop(stack, top - argc - 1);
         stack_push(stack, (void*)&ret_cell);
-        return NULL;
     }
+    if(strcmp(function, "setq") == 0){
+        set_variable(L->g_variables, stack);
+        stack_remove(stack, -2);
+    }
+    {
+        cons_t* func = get_func(L, function);
+        if(func){
+            cons_t* proc = func->cdr->cdr;
+            lisp_eval(L, proc, stack->top - argc);
+            *((cons_t*)stack_get(stack, top - argc)) = *((cons_t*)stack_top(stack)); 
+            stack_settop(stack, top - argc);
+        }
+    }
+}
 
-    if(strcmp(op, "defun") == 0){
-        cons_t* ret_cell = define_func(tree->cdr);
-        tree->cdr = NULL;
-        free_tree(tree);
-        return ret_cell;
-    }
-    if(strcmp(op, "setq") == 0){
-        cons_t* ret_cell = NULL;
-        set_variable(vars, stack);
-        tree->cdr = NULL;
-        free_tree(tree);
-        return ret_cell;
-    }
+cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack)
+{
+    const char* op = NULL;
+    op = tree->svalue;
+
+
+
     if(strcmp(op, "if") == 0){
         cons_t* condition = NULL;
         cons_t* on_true = NULL;
@@ -173,16 +203,6 @@ cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack)
         on_nil = on_true->cdr;
         assert(on_nil != NULL);
 
-        if(condition->type == LIST){
-            eval_car_and_replace(condition, vars, stack);
-        }
-
-        if(on_true->type == STR && vars != NULL){
-            //get_var_and_replace(vars, on_true);
-        }
-        if(on_nil->type == STR && vars != NULL){
-            //get_var_and_replace(vars, on_nil);
-        }
 
         if(condition->type == NIL){
             if(on_nil->type == LIST){
@@ -204,52 +224,8 @@ cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack)
         return ret_cell;
     }
 
-    {
-        cons_t* func = get_func(g_functions, tree);
-        if(func){
-            cons_t* ret_cell;
-            eval_all(tree->cdr, vars, stack);
-            ret_cell = apply(func, tree->cdr, vars, stack);
-            free_tree(tree);
-            return ret_cell;
-        }
-    }
-
-    if(vars){
-        if(tree->cdr){
-            free_tree(tree->cdr);
-            tree->cdr = NULL;
-        }
-        return NULL;//get_var_and_replace(vars, tree);
-    }
-
     free_tree(tree);
     return create_cons_cell(NULL, NIL);
-}
-
-cons_t* apply(cons_t* function, cons_t* args, cons_t* upper_vars, stack_t* stack)
-{
-    assert(function->type == STR);
-    
-    cons_t* vars = NULL;
-    cons_t* ret = NULL;
-    
-    cons_t* params = function->cdr->car;
-    cons_t* proc = function->cdr->cdr->car;
-
-    vars = create_cons_cell(params, LIST);
-    vars->cdr = create_cons_cell(args, LIST);
-    vars->cdr->cdr = upper_vars;
-    
-    ret = eval(copy_tree(proc), vars, stack);
-    
-    vars->cdr->cdr = NULL;
-    vars->cdr->car = NULL;
-    vars->car = NULL;
-   
-    free_tree(vars);
-    
-    return ret;
 }
 
 

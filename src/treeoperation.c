@@ -72,6 +72,8 @@ void print_tree(cons_t* cell)
     case TRUE:
         printf("true");
         break;
+    case PARAM:
+        printf("$%d", cell->iValue);
     default:
         break;
     }

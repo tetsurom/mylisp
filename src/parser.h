@@ -3,12 +3,10 @@
 
 #include <stdio.h>
 
-struct cons_t;
+typedef struct cons_t cons_t;
+typedef struct lisp_t lisp_t;
 
-struct cons_t* parse_from_stream(FILE* file);
-FILE* open_stream(int argc, const char* argv[]);
-int get_token(FILE* file, char buf[], int buf_size);
-struct cons_t* get_tree(FILE* file, char buf[], int buf_size);
+cons_t* lisp_parseFromStream(lisp_t* L, FILE* file);
 
 #endif
 

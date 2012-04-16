@@ -1,7 +1,7 @@
 #ifndef TREE_OPERATION_H
 #define TREE_OPERATION_H
 
-enum cell_type_e {NIL, TRUE, INT, STR, LIST};
+enum cell_type_e {NIL, TRUE, INT, STR, LIST, PARAM};
 
 typedef struct cons_t{
     int type;

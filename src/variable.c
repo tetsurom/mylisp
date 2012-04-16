@@ -11,8 +11,6 @@
 
 cons_t* g_variables;
 
-cons_t NIL_CELL;
-
 void get_var(cons_t* vars, stack_t* stack)
 {
     cons_t* name = NULL;
@@ -20,15 +18,15 @@ void get_var(cons_t* vars, stack_t* stack)
     cons_t* values = NULL;
     cons_t* upper_vars = NULL;
     assert(vars != NULL);
-    assert(name != NULL);
-    assert(name->type == STR);
-    assert(name->svalue != NULL);
 
     names = vars->car;
     values = vars->cdr->car;
     upper_vars = vars->cdr->cdr;
 
-    name = (cons_t*)stack_get(stack, -1);
+    name = (cons_t*)stack_top(stack);
+
+    assert(name != NULL);
+    assert(name->type == STR);
 
     while(values != NULL){
         assert(names->svalue != NULL);
@@ -45,22 +43,14 @@ void get_var(cons_t* vars, stack_t* stack)
         get_var(upper_vars, stack);
         return;
     }
-    stack_push(stack, &NIL_CELL);
-}
-
-cons_t* get_var_and_replace(cons_t* vars, stack_t* stack)
-{
-    /*
-    assert(name->type == STR);
-    cons_t* cdr = name->cdr;
-    cons_t* ret = get_var(vars, name);
-    free(name->svalue);
-    *name = *ret;
-    name->cdr = cdr;
-    ret->car = NULL;
-    free_tree(ret);
-    */
-    return NULL;
+    {
+        cons_t nil_cell;
+        nil_cell.type = NIL;
+        nil_cell.car = NULL;
+        nil_cell.cdr = NULL;
+        stack_pop(stack);
+        stack_push(stack, &nil_cell);
+    }
 }
 
 void set_variable(cons_t* vars, stack_t* stack)
@@ -71,20 +61,21 @@ void set_variable(cons_t* vars, stack_t* stack)
     cons_t* value = NULL;
 
     assert(vars != NULL);
+   
+    name = (cons_t*)stack_get(stack, -2);
+    value = (cons_t*)stack_get(stack, -1);
+    
     assert(name != NULL);
     assert(name->type == STR);
     assert(name->svalue != NULL);
    
-    name = (cons_t*)stack_get(stack, -2);
-    value = (cons_t*)stack_get(stack, -1);
- 
+
     if(vars->type == NIL){
         vars->type = LIST;
         vars->car = copy_cell(name);
         vars->cdr->type = LIST;
-        vars->cdr->car = copy_cell(value);
-        *name = *value;
-        stack_pop(stack);
+        vars->cdr->car = copy_cell(value); 
+        stack_remove(stack, -2);
         return;
     }
 
@@ -94,7 +85,6 @@ void set_variable(cons_t* vars, stack_t* stack)
     for(;;){
         assert(names->svalue != NULL);
         if(strcmp(name->svalue, names->svalue) == 0){
-            cons_t* ret = copy_cell(value);
             cons_t* cdr = values->cdr;
             if(values->type == STR){
                 free(values->svalue);
@@ -103,8 +93,8 @@ void set_variable(cons_t* vars, stack_t* stack)
             }
             *values = *value;
             values->cdr = cdr;
-            *name = *value;
-            stack_pop(stack);
+            stack_remove(stack, -2);
+            return;
         }
         if(names->cdr){
             assert(values->cdr);
@@ -117,10 +107,7 @@ void set_variable(cons_t* vars, stack_t* stack)
 
     values->cdr = copy_cell(value);
     names->cdr = copy_cell(name);
-    *name = *value;
-    stack_pop(stack);
-
-    return;
+    stack_remove(stack, -2);
 }
 
 

@@ -11,36 +11,36 @@
 #include "function.h"
 #include "eval.h"
 #include "stack.h"
+#include "lisp.h"
 
 FILE* open_stream(int argc, const char* argv[]);
 
-stack_t* g_stack;
-
 int main(int argc, const char* argv[])
 {
+    lisp_t* L = NULL;
     FILE* file = open_stream(argc, argv);
-    cons_t* tree = parse_from_stream(file);
+    cons_t* tree = NULL;
+    cons_t* head;
+
+    L = lisp_open();
+
+    tree = lisp_parseFromStream(L, file);
+    if(file != stdin){
+        fclose(file);
+    }
+    //print_tree((cons_t*)stack_get(L->g_stack, -1));
     print_tree(tree);
     putchar('\n');
-
-    g_stack = stack_create(sizeof(cons_t), 1024);
-
-    g_variables = create_cons_cell(NULL, NIL);
-    g_variables->cdr = create_cons_cell(NULL, NIL);
-
-    tree = eval(tree, g_variables, g_stack);
-    print_tree((cons_t*)stack_get(g_stack, -1));
-    putchar('\n');
-    
-    if(g_functions){
-        free_tree(g_functions);
+    for(head = tree; head; head = head->cdr){
+        if(head->type == LIST){
+            lisp_eval(L, head, 0);
+            print_tree((cons_t*)stack_get(L->g_stack, -1));
+            putchar('\n');
+            stack_clear(L->g_stack);
+        }
     }
-    if(g_variables){
-        free_tree(g_variables);
-    }
-    stack_destroy(g_stack);
     free_tree(tree);
-
+    lisp_close(L);
     return 0;
 }
 

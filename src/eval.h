@@ -2,13 +2,11 @@
 #define EVAL_H
 
 typedef struct cons_t cons_t;
-typedef struct stack stack;
+typedef struct stack_t stack_t;
+typedef struct lisp_t lisp_t;
 
-cons_t* eval_all(cons_t* head, cons_t* vars, stack_t* stack);
-cons_t* eval_car_and_replace(cons_t* tree, cons_t* vars, stack_t* stack);
-cons_t* eval(cons_t* tree, cons_t* vars, stack_t* stack);
-cons_t* apply(cons_t* function, cons_t* args, cons_t* upper_vars, stack_t* stack);
-
+void lisp_eval(lisp_t* L, cons_t* tree, int sp_funcparam);
+void lisp_call(lisp_t* L, int argc, int sp_funcparam);
 
 #endif
 
