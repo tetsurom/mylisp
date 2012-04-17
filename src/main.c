@@ -33,7 +33,7 @@ int main(int argc, const char* argv[])
     putchar('\n');
     for(head = tree; head; head = head->cdr){
         if(head->type == LIST){
-            lisp_eval(L, head, 0);
+            lisp_eval(L, head, NULL);
             print_tree((cons_t*)stack_get(L->g_stack, -1));
             putchar('\n');
             stack_clear(L->g_stack);

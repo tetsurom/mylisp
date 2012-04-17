@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "stack.h"
 
-int stack_calcindex(stack_t* self, int index)
+static int stack_calcindex(stack_t* self, int index)
 {
     int i;
     assert(self);
