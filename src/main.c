@@ -12,6 +12,7 @@
 #include "eval.h"
 #include "stack.h"
 #include "lisp.h"
+#include "compiler.h"
 
 FILE* open_stream(int argc, const char* argv[]);
 
@@ -28,15 +29,12 @@ int main(int argc, const char* argv[])
     if(file != stdin){
         fclose(file);
     }
-    //print_tree((cons_t*)stack_get(L->g_stack, -1));
     print_tree(tree);
     putchar('\n');
     for(head = tree; head; head = head->cdr){
         if(head->type == LIST){
-            lisp_eval(L, head, NULL);
-            print_tree((cons_t*)stack_get(L->g_stack, -1));
+            lisp_compile(L, head);
             putchar('\n');
-            stack_clear(L->g_stack);
         }
     }
     free_tree(tree);

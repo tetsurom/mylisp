@@ -16,9 +16,12 @@ typedef struct cons_t{
 
 cons_t* create_cons_cell(void* value, int type);
 void print_tree(cons_t* tree_head);
+void print_cell(cons_t* cell);
 void free_tree(cons_t* tree_head);
 cons_t* copy_cell(cons_t* cell);
 cons_t* copy_tree(cons_t* tree_head);
+
+
 
 #endif
 

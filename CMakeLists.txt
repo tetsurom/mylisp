@@ -14,6 +14,7 @@ ADD_EXECUTABLE(mylisp
     src/eval.c
     src/stack.c
     src/lisp.c
+    src/compiler.c
 )
 
 include_directories("include")

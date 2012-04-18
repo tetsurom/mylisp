@@ -27,7 +27,7 @@ cons_t* define_func(lisp_t* L, cons_t* definition)
             head->cdr = function_cell;
         }
     }
-    lisp_bindParam(definition->cdr->car, definition->cdr->cdr->car);
+    //lisp_bindParam(definition->cdr->car, definition->cdr->cdr->car);
     return definition;
 }
 
@@ -50,44 +50,4 @@ cons_t* get_func(lisp_t* L, const char* name)
     }
     return NULL; 
 }
-
-int lisp_getParamOrder(cons_t* params, cons_t* name)
-{
-    assert(name != NULL);
-    assert(name->type == STR);
-    int order = 0;
-
-    while(params != NULL){
-        if(strcmp(name->svalue, params->svalue) == 0){
-            return order;
-        }
-        params = params->cdr;
-        order++;
-    }
-    
-    return -1;
-}
-
-void lisp_bindParam(cons_t* params, cons_t* tree)
-{
-    if(tree == NULL){
-        return;
-    }
-    
-    if(tree->type == STR && tree->svalue != NULL){
-        int order = lisp_getParamOrder(params, tree);
-        if(order >= 0){
-            free(tree->svalue);
-            tree->type = PARAM;
-            tree->iValue = order;
-        }
-    }
-    if(tree->type == LIST){
-        lisp_bindParam(params, tree->car);
-    }
-    if(tree->cdr != NULL){
-        lisp_bindParam(params, tree->cdr);
-    }
-}
-
 

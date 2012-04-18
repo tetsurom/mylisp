@@ -53,13 +53,11 @@ cons_t* create_cons_cell(void* value, int type)
     return cell;
 }
 
-void print_tree(cons_t* cell)
+void print_cell(cons_t* cell)
 {
     switch(cell->type){
     case LIST:
-        putchar('(');
-        print_tree(cell->car);
-        putchar(')');
+        printf("(...)");
         break;
     case STR:
         printf("%s", cell->svalue);
@@ -114,6 +112,17 @@ void print_tree(cons_t* cell)
         break;
     default:
         break;
+    }
+}
+
+void print_tree(cons_t* cell)
+{
+    if(cell->type == LIST){
+        putchar('(');
+        print_tree(cell->car);
+        putchar(')');
+    }else{
+        print_cell(cell);
     }
     if(cell->cdr != NULL){
         putchar(' ');
