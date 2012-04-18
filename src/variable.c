@@ -9,8 +9,6 @@
 #include "treeoperation.h"
 #include "stack.h"
 
-cons_t* g_variables;
-
 void get_var(cons_t* vars, stack_t* stack)
 {
     cons_t* name = NULL;

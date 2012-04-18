@@ -12,12 +12,11 @@
 #include "stack.h"
 #include "lisp.h"
 
-void lisp_call(lisp_t* L, cons_t* function_cell, int argc, cons_t* sp_funcparam);
+static void lisp_call(lisp_t* L, cons_t* function_cell, int argc, cons_t* sp_funcparam);
 
 void lisp_eval(lisp_t* L, cons_t* tree, cons_t* sp_funcparam)
 {
     cons_t* vars = L->g_variables;
-    int top_before = L->g_stack->top;
     switch(tree->type){
     case LIST:
     {
@@ -90,7 +89,7 @@ void lisp_eval(lisp_t* L, cons_t* tree, cons_t* sp_funcparam)
     assert(L->g_stack->top == top_before + 1);
 }
 
-void lisp_call(lisp_t* L, cons_t* function_cell, int argc, cons_t* sp_funcparam)
+static void lisp_call(lisp_t* L, cons_t* function_cell, int argc, cons_t* sp_funcparam)
 {
     stack_t* stack = L->g_stack;
     char* function = function_cell->svalue;
