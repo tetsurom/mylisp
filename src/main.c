@@ -33,8 +33,10 @@ int main(int argc, const char* argv[])
     putchar('\n');
     for(head = tree; head; head = head->cdr){
         if(head->type == LIST){
-            lisp_compile(L, head);
+            lisp_mn_t* code = lisp_compile(L, head);
             putchar('\n');
+            lisp_printcode(code);
+            free(code);
         }
     }
     free_tree(tree);

@@ -13,6 +13,7 @@ ADD_EXECUTABLE(mylisp
     src/function.c
     src/eval.c
     src/stack.c
+    src/istack.c
     src/lisp.c
     src/compiler.c
 )

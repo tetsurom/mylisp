@@ -16,7 +16,7 @@ void lisp_call(lisp_t* L, cons_t* function_cell, int argc, cons_t* sp_funcparam)
 
 void lisp_eval(lisp_t* L, cons_t* tree, cons_t* sp_funcparam)
 {
-    cons_t* vars = L->g_variables;
+/*    cons_t* vars = L->g_variables;
     int top_before = L->g_stack->top;
     switch(tree->type){
     case LIST:
@@ -88,10 +88,12 @@ void lisp_eval(lisp_t* L, cons_t* tree, cons_t* sp_funcparam)
         break;
     }
     assert(L->g_stack->top == top_before + 1);
+*/
 }
 
 void lisp_call(lisp_t* L, cons_t* function_cell, int argc, cons_t* sp_funcparam)
 {
+/*
     stack_t* stack = L->g_stack;
     char* function = function_cell->svalue;
     int top = stack->top;
@@ -143,7 +145,7 @@ void lisp_call(lisp_t* L, cons_t* function_cell, int argc, cons_t* sp_funcparam)
             case OP_G:
                 if(ret_cell.type == TRUE){
                     ret_cell.type = ret_cell.iValue > rhs ? TRUE : NIL;
-                    ret_cell.iValue = rhs;
+  *                  ret_cell.iValue = rhs;
                 }else{
                     ret_cell.type = NIL;
                 }
@@ -189,6 +191,7 @@ void lisp_call(lisp_t* L, cons_t* function_cell, int argc, cons_t* sp_funcparam)
             stack_settop(stack, param_top);
         }
     }
+*/
 }
 
 

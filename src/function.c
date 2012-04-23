@@ -9,45 +9,55 @@
 #include "variable.h"
 #include "function.h"
 #include "lisp.h"
+#include "util.h"
 
-cons_t* define_func(lisp_t* L, cons_t* definition)
+static char* strclone(const char* str)
 {
-    cons_t* old_func = get_func(L, definition->svalue);
-    if(old_func){
-        *old_func = *definition;
-    }else{
-        cons_t* function_cell = create_cons_cell(definition, LIST);
-        if(L->g_functions == NULL){
-            L->g_functions = function_cell;
-        }else{
-            cons_t* head = L->g_functions;
-            while(head->cdr != NULL){
-                head = head->cdr;
-            }
-            head->cdr = function_cell;
-        }
-    }
-    //lisp_bindParam(definition->cdr->car, definition->cdr->cdr->car);
-    return definition;
+    char* clone = CALLOC(char, strlen(str) + 1);
+    strcpy(clone, str);
+    return clone;
 }
 
-cons_t* get_func(lisp_t* L, const char* name)
+void define_func(lisp_t* L, const char* name, lisp_mn_t* definition)
 {
-    cons_t* func;
-    cons_t* functions = L->g_functions;
+    lisp_list_t* func;
+    lisp_list_t** regist_point = &L->g_functions;
 
-    if(functions == NULL){
-        return NULL;
+    for(func = L->g_functions; func != NULL; func = func->next){
+        regist_point = &(func->next);
+        if(strcmp(name, func->name) == 0){
+            free(func->address);
+            func->address = definition;
+            printf("function %s [%p]\n", name, func->address);
+            return;
+        }
     }
+    (*regist_point) = ALLOC(lisp_list_t);
+    (**regist_point).address = definition;
+    (**regist_point).name = strclone(name);
+    printf("function %s [%p]\n", name, (**regist_point).address);
+}
 
+lisp_list_t* get_func(lisp_t* L, const char* name)
+{
+    lisp_list_t* func;
     assert(name != NULL);
-
-    for(func = functions; func != NULL; func = func->cdr){
-        assert(func->type == LIST && func->car->type == STR);
-        if(strcmp(name, func->car->svalue) == 0){
-            return func->car;
+    for(func = L->g_functions; func != NULL; func = func->next){
+        if(strcmp(name, func->name) == 0){
+            return func;
         }
     }
     return NULL; 
+}
+
+void lisp_clear_functions(lisp_t* L)
+{
+    lisp_list_t* func;
+    for(func = L->g_functions; func != NULL;){
+        lisp_list_t* next = func->next;
+        free(func->address);
+        free(func);
+        func = next;
+    }
 }
 
