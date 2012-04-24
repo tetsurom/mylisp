@@ -114,11 +114,19 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             int is_op = func->type != STR;
             lisp_precompile(L, state, param);
             for(param = param->cdr; param; param = param->cdr){
-                lisp_precompile(L, state, param); 
-                if(is_op){
+                if(param->type == INT && is_op){
                     ++state->pc;
                     print_cell(func);
-                    putchar('\n');
+                    putchar(' ');
+                    print_cell(param);
+                    putchar('\n');                  
+                }else{
+                    lisp_precompile(L, state, param); 
+                    if(is_op){
+                        ++state->pc;
+                        print_cell(func);
+                        putchar('\n');
+                    }
                 }
             }
             if(!is_op){
@@ -161,6 +169,11 @@ static int getOpecode(enum cell_type_e cell_type)
     return cell_type - OP_ADD + LC_ADD;
 }
 
+static int getCOpecode(enum cell_type_e cell_type)
+{
+    return cell_type - OP_ADD + LC_ADDC;
+}
+
 static char* strclone(const char* str)
 {
     char* clone = CALLOC(char, strlen(str) + 1);
@@ -184,8 +197,8 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
         }
         case SETQ:
         {
-            cons_t* v_name = param;
-            cons_t* v_value = param->cdr;
+            //cons_t* v_name = param;
+            //cons_t* v_value = param->cdr;
             break;
         }
         case IF:
@@ -194,6 +207,8 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
             cons_t* on_nil = on_true->cdr;
             int* nil_label = NULL;
             int* endif_label = NULL;
+            lisp_mn_t* jump_endif_mn = NULL;
+
             compile(L, state, param);
 
             mnemonic = state->bytecode + state->pc;
@@ -206,6 +221,7 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
             mnemonic = state->bytecode + state->pc; 
             mnemonic->opcode = LC_JUMP;
             endif_label = &mnemonic->ioperand;
+            jump_endif_mn = mnemonic;
             ++state->pc;
 
             *nil_label = state->pc;
@@ -213,21 +229,28 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
             compile(L, state, on_nil);
 
             *endif_label = state->pc;
-            
-            printf("ENDIF:\n");
+            if((state->bytecode + *endif_label)->opcode == LC_RET){
+                jump_endif_mn->opcode = LC_RET;
+            }
             break;
         }
         default:
         {
             int is_op = func->type != STR;
             compile(L, state, param);
-            mnemonic = state->bytecode + state->pc;
             for(param = param->cdr; param; param = param->cdr){
-                compile(L, state, param); 
-                mnemonic = state->bytecode + state->pc;
-                if(is_op){
-                    mnemonic->opcode = getOpecode(func->type);
+                if(param->type == INT && is_op){
+                    mnemonic = state->bytecode + state->pc;
+                    mnemonic->opcode = getCOpecode(func->type);
+                    mnemonic->ioperand = param->iValue;
                     ++state->pc;
+                }else{
+                    compile(L, state, param); 
+                    mnemonic = state->bytecode + state->pc;
+                    if(is_op){
+                        mnemonic->opcode = getOpecode(func->type);
+                        ++state->pc;
+                    }
                 }
             }
             mnemonic = state->bytecode + state->pc;
@@ -276,22 +299,24 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
 lisp_mn_t* lisp_compile(lisp_t* L, cons_t* tree)
 {
     lisp_compiler_state_t cstate;
+    int codesize = 0;
     cstate.pc = 0;
     cstate.bytecode = NULL;
     lisp_precompile(L, &cstate, tree);
     if(tree->car->type != DEFUN){
-        ++cstate.pc;
+        lisp_mn_t* mnemonic;
+        codesize = ++cstate.pc;
         printf("ret\n");
         printf("----------------\n");
-        printf("size: %d\n", cstate.pc);
+        printf("size: %d\n", codesize);
 
-        cstate.bytecode = CALLOC(lisp_mn_t, cstate.pc);
+        cstate.bytecode = CALLOC(lisp_mn_t, codesize + 1);
+        mnemonic = cstate.bytecode + codesize - 1;
+        mnemonic->opcode = LC_RET;
+        ++mnemonic;
+        mnemonic->opcode = LC_RET;
         cstate.pc = 0;
         compile(L, &cstate, tree);
-
-        lisp_mn_t* mnemonic = cstate.bytecode + cstate.pc;
-        mnemonic->opcode = LC_RET;
-        ++cstate.pc;
     }
     return cstate.bytecode;
 }
@@ -318,6 +343,16 @@ static const char* getOpcodeStr(lisp_mn_t* code)
         case LC_LSEQ:   return "LESSEQ";
         case LC_GREQ:   return "GRTEQ";
         case LC_NEQ:    return "NOTEQ";
+        case LC_ADDC:   return "ADDC";
+        case LC_SUBC:   return "SUBC";
+        case LC_MULC:   return "MULC";
+        case LC_DIVC:   return "DIVC";
+        case LC_EQC:    return "EQC";
+        case LC_LSC:    return "LESSC";
+        case LC_GRC:    return "GRTC";
+        case LC_LSEQC:  return "LESSEQC";
+        case LC_GREQC:  return "GRTEQC";
+        case LC_NEQC:   return "NOTEQC";
         case LC_RET:    return "RET";
         default: break;
     }
@@ -352,10 +387,13 @@ void lisp_printcode(lisp_mn_t* code)
             printf("\t%s\n", (char*)code->poperand);
             break;
         default:
+            if(code->opcode >= LC_ADDC && code->opcode <= LC_NEQC){
+                printf("\t%d", code->ioperand);
+            }
             putchar('\n');
             break;
         }
         ++cnt;
-    }while(code->opcode != LC_RET);
+    }while(!(code->opcode == LC_RET && (code+1)->opcode == LC_RET));
 }
 

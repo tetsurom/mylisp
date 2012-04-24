@@ -44,6 +44,16 @@ typedef struct lisp_mn_t{
         LC_LSEQ,
         LC_GREQ,
         LC_NEQ,
+        LC_ADDC,
+        LC_SUBC,
+        LC_MULC,
+        LC_DIVC,
+        LC_EQC,
+        LC_LSC,
+        LC_GRC,
+        LC_LSEQC,
+        LC_GREQC,
+        LC_NEQC,
         LC_RET,
     } opcode;
     union {

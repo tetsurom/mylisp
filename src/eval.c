@@ -12,25 +12,27 @@
 #include "istack.h"
 #include "lisp.h"
 
+#define STACK_TOP(x) (x->data + x->top)
+#define STACK_OP1(x) (x->data[x->top - 1])
+#define STACK_OP2(x) (x->data[x->top])
+#define STACK_RET(x) (x->data[x->top - 1])
+
 static void lisp_call(lisp_t* L, lisp_func_t* function);
 
 void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
 {
     lisp_mn_t* code_head = code_mn;
     istack_t* stack = L->g_stack;
-    int op1;
-    int op2;
     assert(code_mn);
-    --code_mn;
-    do{
+    for(; code_mn->opcode != LC_RET; ++code_mn){
         int stack_top = stack->top;
-        ++code_mn;
+        int* data = stack->data;
         switch(code_mn->opcode){
         case LC_PUSH:
-            istack_push(stack, code_mn->ioperand);
+            data[++stack->top] = code_mn->ioperand;
             break;
         case LC_LOADP:
-            istack_push(stack, sp_funcparam[code_mn->ioperand]);
+            data[++stack->top] = sp_funcparam[code_mn->ioperand];
             break;
         case LC_LOADV:
             istack_push(stack, *(int*)code_mn->poperand);
@@ -45,7 +47,7 @@ void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         case LC_SETQ:
             break;
         case LC_IFNIL:
-            if(!istack_popget(stack)){
+            if(!data[stack->top--]){
                 code_mn = code_head + code_mn->ioperand - 1;
             }
             break;
@@ -53,59 +55,80 @@ void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
             code_mn = code_head + code_mn->ioperand - 1;
             break;
         case LC_ADD:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 + op2);
+            //op2 = istack_popget(stack);
+            //op1 = istack_popget(stack);
+            //istack_push(stack, op1 + op2);
+            data[--stack->top] += data[stack_top];
             break;
         case LC_SUB:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 - op2);
+            data[--stack->top] -= data[stack_top];
             break;
         case LC_MUL:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 * op2);
+            data[stack_top-1] *= data[stack_top];
+            --stack->top;
             break;
         case LC_DIV:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 / op2);
+            data[stack_top-1] /= data[stack_top];
+            --stack->top;
             break;
         case LC_EQ:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 == op2);
+            data[stack_top-1] = data[stack_top-1] == data[stack_top];
+            --stack->top;
             break;
         case LC_LS:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 < op2);
+            data[stack_top-1] = data[stack_top-1] < data[stack_top];
+            --stack->top;
             break;
         case LC_GR:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 > op2);
+            data[stack_top-1] = data[stack_top-1] > data[stack_top];
+            --stack->top;
             break;
         case LC_LSEQ:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 <= op2);
+            data[stack_top-1] = data[stack_top-1] <= data[stack_top];
+            --stack->top;
             break;
         case LC_GREQ:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 >= op2);
+            data[stack_top-1] = data[stack_top-1] <= data[stack_top];
+            --stack->top;
             break;
         case LC_NEQ:
-            op2 = istack_popget(stack);
-            op1 = istack_popget(stack);
-            istack_push(stack, op1 != op2);
+            data[stack_top-1] = data[stack_top-1] != data[stack_top];
+            --stack->top;
+            break;
+        case LC_ADDC:
+            data[stack_top] += code_mn->ioperand;
+            break;
+        case LC_SUBC:
+            data[stack_top] -= code_mn->ioperand;
+            break;
+        case LC_MULC:
+            *STACK_TOP(stack) *= code_mn->ioperand;
+            break;
+        case LC_DIVC:
+            *STACK_TOP(stack) /= code_mn->ioperand;
+            break;
+        case LC_EQC:
+            *STACK_TOP(stack) = *STACK_TOP(stack) == code_mn->ioperand;
+            break;
+        case LC_LSC:
+            data[stack_top] = data[stack_top] < code_mn->ioperand;
+            break;
+        case LC_GRC:
+            *STACK_TOP(stack) = *STACK_TOP(stack) > code_mn->ioperand;
+            break;
+        case LC_LSEQC:
+            *STACK_TOP(stack) = *STACK_TOP(stack) <= code_mn->ioperand;
+            break;
+        case LC_GREQC:
+            *STACK_TOP(stack) = *STACK_TOP(stack) <= code_mn->ioperand;
+            break;
+        case LC_NEQC:
+            *STACK_TOP(stack) = *STACK_TOP(stack) != code_mn->ioperand;
             break;
         default:
             break;
         }
-    }while(code_mn->opcode != LC_RET);
+    }
 }
 
 void lisp_call(lisp_t* L, lisp_func_t* function)
