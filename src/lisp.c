@@ -9,14 +9,14 @@
 #include "variable.h"
 #include "function.h"
 #include "eval.h"
-#include "stack.h"
+#include "istack.h"
 #include "lisp.h"
 #include "util.h"
 
 lisp_t* lisp_open()
 {
     lisp_t* L = ALLOC(lisp_t);
-    L->g_stack = stack_create(sizeof(cons_t), 1024);
+    L->g_stack = istack_create(1024);
     //L->g_variables = create_cons_cell(NULL, NIL);
     //L->g_variables->cdr = create_cons_cell(NULL, NIL);
     L->g_functions = NULL;
@@ -31,7 +31,7 @@ void lisp_close(lisp_t* L)
     if(L->g_variables){
         //free_tree(L->g_variables);
     }
-    stack_destroy(L->g_stack);
+    istack_destroy(L->g_stack);
     free(L);
 }
 

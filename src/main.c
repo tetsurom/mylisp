@@ -10,7 +10,7 @@
 #include "variable.h"
 #include "function.h"
 #include "eval.h"
-#include "stack.h"
+#include "istack.h"
 #include "lisp.h"
 #include "compiler.h"
 
@@ -35,8 +35,14 @@ int main(int argc, const char* argv[])
         if(head->type == LIST){
             lisp_mn_t* code = lisp_compile(L, head);
             putchar('\n');
-            lisp_printcode(code);
-            free(code);
+            if(code){
+                lisp_printcode(code);
+                lisp_eval(L, code, NULL);
+                printf("----------------\n");
+                printf("%d\n", istack_top(L->g_stack));
+                istack_settop(L->g_stack, 0);
+                free(code);
+            }
         }
     }
     free_tree(tree);

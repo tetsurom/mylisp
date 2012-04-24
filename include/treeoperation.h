@@ -21,7 +21,7 @@ void print_cell(cons_t* cell);
 void free_tree(cons_t* tree_head);
 cons_t* copy_cell(cons_t* cell);
 cons_t* copy_tree(cons_t* tree_head);
-
+size_t tree_listsize(cons_t* head);
 
 
 #endif

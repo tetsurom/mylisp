@@ -75,8 +75,10 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             printf("function %s (", param->svalue);
             print_tree(args);
             printf("):\n");
+            // reserve function
+            define_func(L, param->svalue, NULL, 0);
             funccode = lisp_compile(L, proc);
-            define_func(L, param->svalue, funccode);
+            define_func(L, param->svalue, funccode, tree_listsize(args));
             lisp_printcode(funccode);
             break;
         }
@@ -230,12 +232,13 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
             }
             mnemonic = state->bytecode + state->pc;
             if(!is_op){
-                if(!get_func(L, func->svalue)){
+                lisp_func_t* function = get_func(L, func->svalue); 
+                if(!function){
                     mnemonic->opcode = LC_CALLS;
                     mnemonic->poperand = strclone(func->svalue);
                 }else{
                     mnemonic->opcode = LC_CALL;
-                    mnemonic->poperand = func;
+                    mnemonic->poperand = function;
                 }
                 ++state->pc;
             }
@@ -340,7 +343,8 @@ void lisp_printcode(lisp_mn_t* code)
             break;
         case LC_LOADV:
         case LC_CALL:
-            printf("\t%p\n", code->poperand);
+            printf("\t%p [%s]\n", code->poperand, ((lisp_list_t*)code->poperand)->name);
+            //printf("\t%p\n", code->poperand);
             break;
         case LC_LOADVS:
         case LC_CALLS:

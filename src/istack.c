@@ -50,6 +50,16 @@ void istack_pop(istack_t* self)
     }
 }
 
+int istack_popget(istack_t* self)
+{
+    assert(self);
+    int top = self->data[self->top];
+    if(self->top >= 0){
+        --self->top;
+    }
+    return top;
+}
+
 int istack_top(istack_t* self)
 {
     return self->data[self->top];

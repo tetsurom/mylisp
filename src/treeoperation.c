@@ -179,3 +179,12 @@ cons_t* copy_cell(cons_t* cell)
     }
     return copied_cell;
 }
+
+size_t tree_listsize(cons_t* head)
+{
+    size_t size = 0;
+    for(; head; head = head->cdr) ++size;
+    return size;
+}
+
+
