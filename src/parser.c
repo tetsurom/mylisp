@@ -58,7 +58,7 @@ cons_t* get_tree(FILE* file, char buf[], int buf_size)
 {
     cons_t* cell = NULL;
     if(0 != get_token(file, buf, buf_size)){
-        printf("%s\n", buf);
+        //printf("%s\n", buf);
         if(strcmp(buf, ")") == 0){
             return cell;
         }

@@ -72,9 +72,6 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             cons_t* proc = param->cdr->cdr;
             lisp_mn_t* funccode;
             bindParam(args, proc);
-            printf("function %s (", param->svalue);
-            print_tree(args);
-            printf("):\n");
             // reserve function
             define_func(L, param->svalue, NULL, 0);
             funccode = lisp_compile(L, proc);
@@ -88,9 +85,6 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             cons_t* v_value = param->cdr;
             lisp_precompile(L, state, v_value);
             ++state->pc;
-            printf("setq ");
-            print_cell(v_name);
-            putchar('\n');
             break;
         }
         case IF:
@@ -99,14 +93,9 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             cons_t* on_nil = on_true->cdr;
             lisp_precompile(L, state, param);
             ++state->pc;
-            printf("ifnil N:");
-            putchar('\n');
             lisp_precompile(L, state, on_true);
             ++state->pc;
-            printf("goto ENDIF:\n");
-            printf("N:\n");
             lisp_precompile(L, state, on_nil);
-            printf("ENDIF:\n");
             break;
         }
         default:
@@ -116,24 +105,15 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             for(param = param->cdr; param; param = param->cdr){
                 if(param->type == INT && is_op){
                     ++state->pc;
-                    print_cell(func);
-                    putchar(' ');
-                    print_cell(param);
-                    putchar('\n');                  
                 }else{
                     lisp_precompile(L, state, param); 
                     if(is_op){
                         ++state->pc;
-                        print_cell(func);
-                        putchar('\n');
                     }
                 }
             }
             if(!is_op){
                 ++state->pc;
-                printf("call ");
-                print_cell(func);
-                putchar('\n');
             }
             break;
         }   
@@ -142,24 +122,14 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
     }
     case PARAM:
         ++state->pc;
-        printf("loadp ");
-        print_cell(tree);
-        putchar('\n');
         break;
     case STR:
         ++state->pc;
-        printf("loadv ");
-        print_cell(tree);
-        putchar('\n');
         break;
     case INT:
         ++state->pc;
-        printf("push ");
-        print_cell(tree);
-        putchar('\n');
         break;
     default:
-        printf("ERROR\n");
         break;
     }
 }
@@ -306,9 +276,9 @@ lisp_mn_t* lisp_compile(lisp_t* L, cons_t* tree)
     if(tree->car->type != DEFUN){
         lisp_mn_t* mnemonic;
         codesize = ++cstate.pc;
-        printf("ret\n");
-        printf("----------------\n");
-        printf("size: %d\n", codesize);
+        //printf("ret\n");
+        //printf("----------------\n");
+        //printf("size: %d\n", codesize);
 
         cstate.bytecode = CALLOC(lisp_mn_t, codesize + 1);
         mnemonic = cstate.bytecode + codesize - 1;

@@ -17,14 +17,12 @@
 #define STACK_OP2(x) (x->data[x->top])
 #define STACK_RET(x) (x->data[x->top - 1])
 
-static void lisp_call(lisp_t* L, lisp_func_t* function);
-
 void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
 {
     lisp_mn_t* code_head = code_mn;
     istack_t* stack = L->g_stack;
     assert(code_mn);
-    for(; code_mn->opcode != LC_RET; ++code_mn){
+    for(;; ++code_mn){
         int stack_top = stack->top;
         int* data = stack->data;
         switch(code_mn->opcode){
@@ -40,8 +38,18 @@ void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         case LC_LOADVS:
             break;
         case LC_CALL:
-            lisp_call(L, (lisp_func_t*)code_mn->poperand);
+        {
+            lisp_func_t* function = (lisp_func_t*)code_mn->poperand;
+            int argc = function->argc;
+            int param_top_index = stack->top - argc + 1;
+            int* param_top = stack->data + param_top_index;
+            lisp_eval(L, function->address, param_top);
+            if(argc > 0){
+                data[param_top_index] = data[stack->top];
+                stack->top = param_top_index;
+            }
             break;
+        }
         case LC_CALLS:
             break;
         case LC_SETQ:
@@ -125,26 +133,11 @@ void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         case LC_NEQC:
             *STACK_TOP(stack) = *STACK_TOP(stack) != code_mn->ioperand;
             break;
+        case LC_RET:
+            return;
         default:
             break;
         }
     }
 }
-
-void lisp_call(lisp_t* L, lisp_func_t* function)
-{
-    istack_t* stack = L->g_stack;
-    int stack_top = stack->top;
-    int argc = function->argc;
-    int param_top_index = stack->top - argc + 1;
-    int* param_top = stack->data + param_top_index;
-    lisp_eval(L, function->address, param_top);
-    if(argc > 0){
-        int ret = istack_top(stack);
-        istack_settop(stack, param_top_index - 1);
-        istack_push(stack, ret);
-    }
-    assert(stack->top == stack_top - argc + 1);
-}
-
 

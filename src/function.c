@@ -38,7 +38,9 @@ void define_func(lisp_t* L, const char* name, lisp_mn_t* definition, int argc)
     (**regist_point).name = strclone(name);
     (**regist_point).argc = argc;
     (**regist_point).next = NULL;
-    printf("function %s [%p]\n", name, (*regist_point));
+    if(definition){
+        printf("function %s [%p]\n", name, (*regist_point));
+    }
 }
 
 lisp_func_t* get_func(lisp_t* L, const char* name)
