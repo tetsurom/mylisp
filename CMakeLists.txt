@@ -3,7 +3,7 @@ PROJECT(mylisp)
 
 
 SET(CMAKE_C_FLAGS_DEBUG "-Wall -O0 -g3 -pg")
-SET(CMAKE_C_FLAGS_RELEASE "-Wall -O2 -DNDEBUG")
+SET(CMAKE_C_FLAGS_RELEASE "-Wall -O2 -g -DNDEBUG")
 
 ADD_EXECUTABLE(mylisp
     src/main.c

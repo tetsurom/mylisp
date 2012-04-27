@@ -1,26 +1,26 @@
 #ifndef LISP_H
 #define LISP_H
 
-typedef struct cons_t cons_t;
-typedef struct istack_t istack_t;
+struct cons_t;
+struct istack_t;
 
 typedef struct lisp_list_t {
     char* name;
-    lisp_mn_t* address;
+    struct lisp_mn_t* address;
     struct lisp_list_t* next;   
 } lisp_list_t;
 
 typedef struct lisp_func_t {
     char* name;
-    lisp_mn_t* address;
+    struct lisp_mn_t* address;
     struct lisp_func_t* next;
     int argc;
 } lisp_func_t;
 
 typedef struct lisp_t {
-    istack_t* g_stack;
-    lisp_list_t* g_variables;
-    lisp_func_t* g_functions;
+    struct istack_t* g_stack;
+    struct lisp_list_t* g_variables;
+    struct lisp_func_t* g_functions;
 } lisp_t;
 
 typedef struct lisp_mn_t{
@@ -62,8 +62,8 @@ typedef struct lisp_mn_t{
     };
 } lisp_mn_t;
 
-lisp_t* lisp_open();
-void lisp_close(lisp_t* L);
+struct lisp_t* lisp_open();
+void lisp_close(struct lisp_t* L);
 
 #endif
 

@@ -1,12 +1,11 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <stdio.h>
+struct FILE;
+struct cons_t;
+struct lisp_t;
 
-typedef struct cons_t cons_t;
-typedef struct lisp_t lisp_t;
-
-cons_t* lisp_parseFromStream(lisp_t* L, FILE* file);
+struct cons_t* lisp_parseFromStream(struct lisp_t* L, FILE* file);
 
 #endif
 

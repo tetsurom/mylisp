@@ -367,3 +367,13 @@ void lisp_printcode(lisp_mn_t* code)
     }while(!(code->opcode == LC_RET && (code+1)->opcode == LC_RET));
 }
 
+void lisp_clearcode(lisp_mn_t* code)
+{
+    for(; code->opcode != LC_RET; ++code){
+        if(code->opcode == LC_LOADVS || code->opcode == LC_CALLS){
+            free(code->poperand);
+        }
+    }
+    free(code);
+}
+

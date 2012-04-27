@@ -41,7 +41,7 @@ int main(int argc, const char* argv[])
                 printf("----------------\n");
                 printf("%d\n", istack_top(L->g_stack));
                 istack_settop(L->g_stack, 0);
-                free(code);
+                lisp_clearcode(code);
             }
         }
     }

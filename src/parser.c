@@ -8,6 +8,7 @@
 #include "treeoperation.h"
 #include "parser.h"
 #include "stack.h"
+#include "lisp.h"
 
 int get_token(FILE* file, char buf[], int buf_size);
 struct cons_t* get_tree(FILE* file, char buf[], int buf_size);

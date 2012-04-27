@@ -1,14 +1,12 @@
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
-typedef struct cons_t cons_t;
-typedef struct stack_t stack_t;
+struct cons_t;
+struct stack_t;
 
-void get_var(cons_t* vars, stack_t* stack);
-cons_t* get_var_and_replace(cons_t* vars, stack_t* stack);
-void set_variable(cons_t* vars, stack_t* stack);
-
-extern cons_t* g_variables;
+void get_var(struct cons_t* vars, struct stack_t* stack);
+struct cons_t* get_var_and_replace(struct cons_t* vars, struct stack_t* stack);
+void set_variable(struct cons_t* vars, struct stack_t* stack);
 
 #endif
 
