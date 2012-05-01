@@ -15,6 +15,8 @@
 #define STACK_OP2(x) (x->data[x->top])
 #define STACK_RET(x) (x->data[x->top - 1])
 
+static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam);
+
 void lisp_eval(lisp_t* L, cons_t* tree)
 {
     if(tree->type == LIST){
@@ -31,25 +33,28 @@ void lisp_eval(lisp_t* L, cons_t* tree)
     }
 }
 
-void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
+#define OP_2STACK(top, op) { *(top-1) op ## = *top; top -= 1; }
+#define OP_2STACKCMP(top, op) { *(top-1) = *(top-1) op *top; top -= 1; }
+#define PUSH(top, v) { *(++top) = v; }
+
+static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
 {
     lisp_mn_t* code_head = code_mn;
     istack_t* stack = L->g_stack;
     int* data = stack->data;
+    int* top = stack->data + stack->top;
 
     assert(code_mn);
     for(;; ++code_mn){
-        register int stack_top = stack->top;
-        //int* stack_top_p = data + stack_top;
         switch(code_mn->opcode){
         case LC_PUSH:
-            data[++stack->top] = code_mn->ioperand;
+            PUSH(top, code_mn->ioperand);
             break;
         case LC_LOADP:
-            data[++stack->top] = sp_funcparam[code_mn->ioperand];
+            PUSH(top, sp_funcparam[code_mn->ioperand]);
             break;
         case LC_LOADV:
-            istack_push(stack, *(int*)code_mn->poperand);
+            PUSH(top, *(int*)code_mn->poperand);
             break;
         case LC_LOADVS:
             break;
@@ -57,14 +62,14 @@ void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         {
             lisp_func_t* function = (lisp_func_t*)code_mn->poperand;
             int argc = function->argc;
-            int param_top_index = stack_top - argc + 1;
-            int* param_top = stack->data + param_top_index;
+            int* param_top = top - argc + 1;
+            stack->top = (int)(top - data);
             //printf("%s(%i; %i, %i) ", function->name, function->argc, *param_top, *(param_top + 1));
             lisp_execute(L, function->address, param_top);
             //printf(" -> %i\n", data[stack->top]);
             if(argc > 0){
-                data[param_top_index] = data[stack->top];
-                stack->top = param_top_index;
+                *param_top = data[stack->top];
+                top = param_top;
             }
             break;
         }
@@ -73,7 +78,7 @@ void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         case LC_SETQ:
             break;
         case LC_IFNIL:
-            if(!data[stack->top--]){
+            if(!*(top--)){
                 code_mn = code_head + code_mn->ioperand - 1;
             }
             break;
@@ -81,78 +86,68 @@ void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
             code_mn = code_head + code_mn->ioperand - 1;
             break;
         case LC_ADD:
-            //op2 = istack_popget(stack);
-            //op1 = istack_popget(stack);
-            //istack_push(stack, op1 + op2);
-            data[--stack->top] += data[stack_top];
+            OP_2STACK(top, +);
             break;
         case LC_SUB:
-            data[--stack->top] -= data[stack_top];
+            OP_2STACK(top, -);
             break;
         case LC_MUL:
-            data[stack_top-1] *= data[stack_top];
-            --stack->top;
+            OP_2STACK(top, *);
             break;
         case LC_DIV:
-            data[stack_top-1] /= data[stack_top];
-            --stack->top;
+            OP_2STACK(top, /);
             break;
         case LC_EQ:
-            data[stack_top-1] = data[stack_top-1] == data[stack_top];
-            --stack->top;
+            OP_2STACKCMP(top, ==);
             break;
         case LC_LS:
-            data[stack_top-1] = data[stack_top-1] < data[stack_top];
-            --stack->top;
+            OP_2STACKCMP(top, <);
             break;
         case LC_GR:
-            data[stack_top-1] = data[stack_top-1] > data[stack_top];
-            --stack->top;
+            OP_2STACKCMP(top, >);
             break;
         case LC_LSEQ:
-            data[stack_top-1] = data[stack_top-1] <= data[stack_top];
-            --stack->top;
+            OP_2STACKCMP(top, <=);
             break;
         case LC_GREQ:
-            data[stack_top-1] = data[stack_top-1] <= data[stack_top];
-            --stack->top;
+            OP_2STACKCMP(top, >=);
             break;
         case LC_NEQ:
-            data[stack_top-1] = data[stack_top-1] != data[stack_top];
-            --stack->top;
+            OP_2STACKCMP(top, !=);
             break;
         case LC_ADDC:
-            data[stack_top] += code_mn->ioperand;
+            *top += code_mn->ioperand;
             break;
         case LC_SUBC:
-            data[stack_top] -= code_mn->ioperand;
+            *top -= code_mn->ioperand;
             break;
         case LC_MULC:
-            *STACK_TOP(stack) *= code_mn->ioperand;
+            *top *= code_mn->ioperand;
             break;
         case LC_DIVC:
-            *STACK_TOP(stack) /= code_mn->ioperand;
+            *top /= code_mn->ioperand;
             break;
         case LC_EQC:
-            *STACK_TOP(stack) = *STACK_TOP(stack) == code_mn->ioperand;
+            *top = *top == code_mn->ioperand;
             break;
         case LC_LSC:
-            data[stack_top] = data[stack_top] < code_mn->ioperand;
+            *top = *top < code_mn->ioperand;
             break;
         case LC_GRC:
-            *STACK_TOP(stack) = *STACK_TOP(stack) > code_mn->ioperand;
+            *top = *top > code_mn->ioperand;
             break;
         case LC_LSEQC:
-            *STACK_TOP(stack) = *STACK_TOP(stack) <= code_mn->ioperand;
+            *top = *top <= code_mn->ioperand;
             break;
         case LC_GREQC:
-            *STACK_TOP(stack) = *STACK_TOP(stack) <= code_mn->ioperand;
+            *top = *top <= code_mn->ioperand;
             break;
         case LC_NEQC:
-            *STACK_TOP(stack) = *STACK_TOP(stack) != code_mn->ioperand;
+            *top = *top != code_mn->ioperand;
             break;
         case LC_RET:
-        //case LC_END:
+        case LC_END:
+            stack->top = (int)(top - data);
             return;
         default:
             break;
