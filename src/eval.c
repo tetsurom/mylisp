@@ -76,6 +76,7 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         LABELP(LC_NEQC),
         LABELP(LC_RET),
     };
+
     lisp_mn_t* code_head = code_mn;
     istack_t* stack = L->g_stack;
     int* data = stack->data;
@@ -117,8 +118,8 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         }
         JUMP((++code_mn)->opcode);
     CASE(LC_JUMP):
-        code_mn = code_head + code_mn->ioperand - 1;
-        JUMP((++code_mn)->opcode);
+        code_mn = code_head + code_mn->ioperand;
+        JUMP(code_mn->opcode);
     CASE(LC_ADD):
         OP_2STACK(top, +);
         JUMP((++code_mn)->opcode);
