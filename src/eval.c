@@ -74,7 +74,12 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         LABELP(LC_LSEQC),
         LABELP(LC_GREQC),
         LABELP(LC_NEQC),
+        LABELP(LC_INC),
+        LABELP(LC_DEC),
+        LABELP(LC_DEC2),
         LABELP(LC_RET),
+        LABELP(LC_RETV),
+        LABELP(LC_NOP),
     };
 
     lisp_mn_t* code_head = code_mn;
@@ -88,11 +93,32 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
     CASE(LC_LOADP):
         PUSH(top, sp_funcparam[code_mn->ioperand]);
         JUMP((++code_mn)->opcode);
+    CASE(LC_LOADVS):
+    {
+        int* var = lisp_get_var(L, (char*)code_mn->poperand); 
+        if(var){
+            code_mn->opcode = LC_LOADV;
+            code_mn->poperand = var;
+        }else{
+            fprintf(stderr, "ERROR: function %s is undefined.\n", (char*)code_mn->poperand);
+            PUSH(top, 0);
+            JUMP((++code_mn)->opcode);
+        }
+    }
     CASE(LC_LOADV):
         PUSH(top, *(int*)code_mn->poperand);
         JUMP((++code_mn)->opcode);
-    CASE(LC_LOADVS):
-        JUMP((++code_mn)->opcode);
+    CASE(LC_CALLS):
+    {
+        lisp_func_t* function = get_func(L, (char*)code_mn->poperand); 
+        if(function){
+            code_mn->opcode = LC_CALL;
+            code_mn->poperand = function;
+        }else{
+            fprintf(stderr, "ERROR: function %s is undefined.\n", (char*)code_mn->poperand);
+            JUMP((++code_mn)->opcode);
+        }
+    }
     CASE(LC_CALL):
     {
         lisp_func_t* function = (lisp_func_t*)code_mn->poperand;
@@ -108,15 +134,11 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         }
         JUMP((++code_mn)->opcode);
     }
-    CASE(LC_CALLS):
-        JUMP((++code_mn)->opcode);
     CASE(LC_SETQ):
+        *(int*)code_mn->poperand = *(top--);
         JUMP((++code_mn)->opcode);
     CASE(LC_IFNIL):
-        if(!*(top--)){
-            code_mn = code_head + code_mn->ioperand - 1;
-        }
-        JUMP((++code_mn)->opcode);
+        JUMP( (*(top--) ? (++code_mn) : (code_mn = code_head + code_mn->ioperand))->opcode );
     CASE(LC_JUMP):
         code_mn = code_head + code_mn->ioperand;
         JUMP(code_mn->opcode);
@@ -180,8 +202,21 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
     CASE(LC_NEQC):
         *top = *top != code_mn->ioperand;
         JUMP((++code_mn)->opcode);
+    CASE(LC_INC):
+        *top += 1;
+        JUMP((++code_mn)->opcode);
+    CASE(LC_DEC):
+        *top -= 1;
+        JUMP((++code_mn)->opcode);
+    CASE(LC_DEC2):
+        *top -= 2;
+        JUMP((++code_mn)->opcode);
+    CASE(LC_RETV):
+        PUSH(top, code_mn->ioperand);
     CASE(LC_RET):
         stack->top = (int)(top - data);
         return;
+    CASE(LC_NOP):
+        JUMP((++code_mn)->opcode);
 }
 

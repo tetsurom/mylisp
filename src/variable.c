@@ -1,113 +1,54 @@
 #include <stdio.h>
-#include <string.h>
-#include <memory.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <limits.h>
+#include <string.h>
 #include <assert.h>
 #include "variable.h"
-#include "treeoperation.h"
 #include "stack.h"
+#include "lisp.h"
+#include "util.h"
 
-cons_t* g_variables;
-
-void get_var(cons_t* vars, stack_t* stack)
+void lisp_set_var(lisp_t* L, const char* name, int definition)
 {
-    cons_t* name = NULL;
-    cons_t* names = NULL;
-    cons_t* values = NULL;
-    cons_t* upper_vars = NULL;
-    assert(vars != NULL);
+    lisp_list_t* var;
+    lisp_list_t** regist_point = &L->g_variables;
 
-    names = vars->car;
-    values = vars->cdr->car;
-    upper_vars = vars->cdr->cdr;
-
-    name = (cons_t*)stack_top(stack);
-
-    assert(name != NULL);
-    assert(name->type == STR);
-
-    while(values != NULL){
-        assert(names->svalue != NULL);
-        if(strcmp(name->svalue, names->svalue) == 0){
-            stack_pop(stack);
-            stack_push(stack, values);
-            ((cons_t*)stack_get(stack, -1))->cdr = NULL;
+    for(var = L->g_variables; var != NULL; var = var->next){
+        regist_point = &(var->next);
+        if(strcmp(name, var->name) == 0){
+            *(int*)(var->address) = definition;
+            printf("variable %s [%p]\n", name, var);
             return;
         }
-        names = names->cdr;
-        values = values->cdr;
     }
-    if(upper_vars){
-        get_var(upper_vars, stack);
-        return;
-    }
-    {
-        cons_t nil_cell;
-        nil_cell.type = NIL;
-        nil_cell.car = NULL;
-        nil_cell.cdr = NULL;
-        stack_pop(stack);
-        stack_push(stack, &nil_cell);
+    var = (*regist_point) = ALLOC(lisp_list_t);
+    var->address = (lisp_mn_t*)ALLOC(int);
+    *(int*)var->address = definition;
+    var->name = lisp_addsymbol(L, name);
+    var->next = NULL;
+    if(definition){
+        printf("variable %s [%p]\n", name, var);
     }
 }
 
-void set_variable(cons_t* vars, stack_t* stack)
+int* lisp_get_var(lisp_t* L, const char* name)
 {
-    cons_t* names = NULL;
-    cons_t* values = NULL;
-    cons_t* name = NULL;
-    cons_t* value = NULL;
-
-    assert(vars != NULL);
-   
-    name = (cons_t*)stack_get(stack, -2);
-    value = (cons_t*)stack_get(stack, -1);
-    
+    lisp_list_t* var = NULL;
     assert(name != NULL);
-    assert(name->type == STR);
-    assert(name->svalue != NULL);
-   
-
-    if(vars->type == NIL){
-        vars->type = LIST;
-        vars->car = copy_cell(name);
-        vars->cdr->type = LIST;
-        vars->cdr->car = copy_cell(value); 
-        stack_remove(stack, -2);
-        return;
-    }
-
-    names = vars->car;
-    values = vars->cdr->car;
-
-    for(;;){
-        assert(names->svalue != NULL);
-        if(strcmp(name->svalue, names->svalue) == 0){
-            cons_t* cdr = values->cdr;
-            if(values->type == STR){
-                free(values->svalue);
-            }else if(values->type == LIST){
-                free_tree(values->car);
-            }
-            *values = *value;
-            values->cdr = cdr;
-            stack_remove(stack, -2);
-            return;
-        }
-        if(names->cdr){
-            assert(values->cdr);
-            names = names->cdr;
-            values = values->cdr;
-        }else{
-            break;
+    for(var = L->g_variables; var != NULL; var = var->next){
+        if(strcmp(name, var->name) == 0){
+            return (int*)var->address;
         }
     }
-
-    values->cdr = copy_cell(value);
-    names->cdr = copy_cell(name);
-    stack_remove(stack, -2);
+    return NULL; 
 }
 
-
+void lisp_clear_variables(lisp_t* L)
+{
+    lisp_list_t* var;
+    for(var = L->g_variables; var != NULL;){
+        lisp_list_t* next = var->next;
+        free(var->address);
+        free(var);
+        var = next;
+    }
+}

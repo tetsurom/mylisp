@@ -4,9 +4,11 @@
 struct cons_t;
 struct stack_t;
 
-void get_var(struct cons_t* vars, struct stack_t* stack);
-struct cons_t* get_var_and_replace(struct cons_t* vars, struct stack_t* stack);
-void set_variable(struct cons_t* vars, struct stack_t* stack);
+struct lisp_t;
+
+void lisp_set_var(struct lisp_t* L, const char* name, int definition);
+int* lisp_get_var(struct lisp_t* L, const char* name);
+void lisp_clear_vars(struct lisp_t* L);
 
 #endif
 

@@ -89,6 +89,18 @@ cons_t* get_tree(FILE* file, char buf[], int buf_size)
                     cell = create_cons_cell(NULL, DEFUN);
                 }else if(strcmp(buf, "if") == 0){
                     cell = create_cons_cell(NULL, IF);
+                }else if(strcmp(buf, "nil") == 0){
+                    cell = create_cons_cell(NULL, NIL);
+                }else if(strcmp(buf, "t") == 0){
+                    cell = create_cons_cell(NULL, TRUE);
+                }else if(strcmp(buf, "NIL") == 0){
+                    cell = create_cons_cell(NULL, NIL);
+                }else if(strcmp(buf, "T") == 0){
+                    cell = create_cons_cell(NULL, TRUE);
+                }else if(strcmp(buf, "true") == 0){
+                    cell = create_cons_cell(NULL, TRUE);
+                }else if(strcmp(buf, "TRUE") == 0){
+                    cell = create_cons_cell(NULL, TRUE);
                 }else if(strcmp(buf, "<=") == 0){
                     cell = create_cons_cell(NULL, OP_LEQ);
                 }else if(strcmp(buf, ">=") == 0){

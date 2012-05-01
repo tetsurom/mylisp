@@ -6,6 +6,7 @@
 #include "compiler.h"
 #include "treeoperation.h"
 #include "function.h"
+#include "variable.h"
 #include "lisp.h"
 #include "util.h"
 
@@ -78,7 +79,6 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
         }
         case SETQ:
         {
-            cons_t* v_name = param;
             cons_t* v_value = param->cdr;
             lisp_precompile(L, state, v_value);
             ++state->pc;
@@ -118,6 +118,8 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
         break;
     }
     case PARAM:
+    case TRUE:
+    case NIL:
         ++state->pc;
         break;
     case STR:
@@ -157,8 +159,12 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
         }
         case SETQ:
         {
-            //cons_t* v_name = param;
-            //cons_t* v_value = param->cdr;
+            compile(L, state, param->cdr);
+            lisp_set_var(L, param->svalue, 0);
+            mnemonic = state->bytecode + state->pc;
+            mnemonic->opcode = LC_SETQ;
+            mnemonic->poperand = lisp_get_var(L, param->svalue);
+            ++state->pc;
             break;
         }
         case IF:
@@ -236,23 +242,54 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
         ++state->pc;
         break;
     case VAR:
-        mnemonic->opcode = LC_LOADV;
-        mnemonic->poperand = tree->pvalue;
-        ++state->pc;
-        break;
     case STR:
-        mnemonic->opcode = LC_LOADVS;
-        mnemonic->poperand = lisp_addsymbol(L, tree->svalue);
+    {
+        int* var = lisp_get_var(L, tree->svalue);
+        if(var){
+            mnemonic->opcode = LC_LOADV;
+            mnemonic->poperand = (void*)var;
+        }else{
+            mnemonic->opcode = LC_LOADVS;
+            mnemonic->poperand = tree->svalue;
+        }
         ++state->pc;
         break;
+    }
     case INT:
         mnemonic->opcode = LC_PUSH;
         mnemonic->ioperand = tree->iValue;
         ++state->pc;
         break;
+    case TRUE:
+        mnemonic->opcode = LC_PUSH;
+        mnemonic->ioperand = 1;
+        ++state->pc;
+        break;
+    case NIL:
+        mnemonic->opcode = LC_PUSH;
+        mnemonic->ioperand = 0;
+        ++state->pc;
+        break;
     default:
         assert(0 && "compile error");
         break;
+    }
+}
+
+void optimize(lisp_mn_t* bytecode){
+    for(; bytecode->opcode != LC_END; ++bytecode){
+        if(bytecode->opcode == LC_ADDC && bytecode->ioperand == 1){
+            bytecode->opcode = LC_INC;
+        }else if(bytecode->opcode == LC_SUBC && bytecode->ioperand == -1){
+            bytecode->opcode = LC_INC;
+        }else if(bytecode->opcode == LC_SUBC && bytecode->ioperand == 1){
+            bytecode->opcode = LC_DEC;
+        }else if(bytecode->opcode == LC_SUBC && bytecode->ioperand == 2){
+            bytecode->opcode = LC_DEC2;
+        }else if(bytecode->opcode == LC_PUSH && (bytecode + 1)->opcode == LC_RET ){
+            bytecode->opcode = LC_RETV;
+            (bytecode + 1)->opcode = LC_NOP;
+        }
     }
 }
 
@@ -277,6 +314,7 @@ lisp_mn_t* lisp_compile(lisp_t* L, cons_t* tree)
         mnemonic->opcode = LC_END;
         cstate.pc = 0;
         compile(L, &cstate, tree);
+        optimize(cstate.bytecode);
     }
     return cstate.bytecode;
 }
@@ -313,7 +351,12 @@ static const char* getOpcodeStr(lisp_mn_t* code)
         case LC_LSEQC:  return "LESSEQC";
         case LC_GREQC:  return "GRTEQC";
         case LC_NEQC:   return "NOTEQC";
+        case LC_INC:    return "INC";
+        case LC_DEC:    return "DEC";
+        case LC_DEC2:    return "DEC2";
         case LC_RET:    return "RET";
+        case LC_RETV:   return "RETV";
+        case LC_NOP:    return "NOP";
         default: break;
     }
     return "";
@@ -328,6 +371,7 @@ void lisp_printcode(lisp_mn_t* code)
         switch(code->opcode){
         case LC_PUSH:
         case LC_LOADP:
+        case LC_RETV:
             printf("\t%d\n", code->ioperand);
             break;
         case LC_JUMP:
@@ -335,13 +379,15 @@ void lisp_printcode(lisp_mn_t* code)
             printf("\t0x%04X\n", code->ioperand);
             break;
         case LC_LOADV:
+        case LC_SETQ:
+            printf("\t%p\n", code->poperand);
+            break;
         case LC_CALL:
             printf("\t%p [%s]\n", code->poperand, ((lisp_list_t*)code->poperand)->name);
             //printf("\t%p\n", code->poperand);
             break;
         case LC_LOADVS:
         case LC_CALLS:
-        case LC_SETQ:
             printf("\t%s\n", (char*)code->poperand);
             break;
         default:

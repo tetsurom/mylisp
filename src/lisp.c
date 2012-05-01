@@ -19,8 +19,7 @@ lisp_t* lisp_open()
 {
     lisp_t* L = ALLOC(lisp_t);
     L->g_stack = istack_create(1024);
-    //L->g_variables = create_cons_cell(NULL, NIL);
-    //L->g_variables->cdr = create_cons_cell(NULL, NIL);
+    L->g_variables = NULL;
     L->g_functions = NULL;
     L->g_symbols = NULL;
     return L;
@@ -29,9 +28,7 @@ lisp_t* lisp_open()
 void lisp_close(lisp_t* L)
 {
     lisp_clear_functions(L);
-    if(L->g_variables){
-        //free_tree(L->g_variables);
-    }
+    lisp_clear_variables(L);
     lisp_clearsymbols(L);
     istack_destroy(L->g_stack);
     free(L);
