@@ -19,31 +19,21 @@ FILE* open_stream(int argc, const char* argv[]);
 int main(int argc, const char* argv[])
 {
     lisp_t* L = NULL;
-    FILE* file = open_stream(argc, argv);
     cons_t* tree = NULL;
     cons_t* head;
 
     L = lisp_open();
-
-    tree = lisp_parseFromStream(L, file);
-    if(file != stdin){
-        fclose(file);
-    }
-    print_tree(tree);
-    putchar('\n');
-    for(head = tree; head; head = head->cdr){
-        if(head->type == LIST){
-            lisp_mn_t* code = lisp_compile(L, head);
-            putchar('\n');
-            if(code){
-                lisp_printcode(code);
-                lisp_eval(L, code, NULL);
-                printf("----------------\n");
-                printf("%d\n", istack_top(L->g_stack));
-                istack_settop(L->g_stack, 0);
-                lisp_clearcode(code);
-            }
+    {
+        FILE* file = open_stream(argc, argv);
+        tree = lisp_parseFromStream(L, file);
+        if(file != stdin){
+            fclose(file);
         }
+    }
+    for(head = tree; head; head = head->cdr){
+        print_tree(head);
+        putchar('\n');
+        lisp_eval(L, head);   
     }
     free_tree(tree);
     lisp_close(L);

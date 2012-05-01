@@ -21,6 +21,7 @@ typedef struct lisp_t {
     struct istack_t* g_stack;
     struct lisp_list_t* g_variables;
     struct lisp_func_t* g_functions;
+    struct lisp_list_t* g_symbols;
 } lisp_t;
 
 typedef struct lisp_mn_t{
@@ -55,6 +56,7 @@ typedef struct lisp_mn_t{
         LC_GREQC,
         LC_NEQC,
         LC_RET,
+        LC_END,
     } opcode;
     union {
         int ioperand;
@@ -64,6 +66,7 @@ typedef struct lisp_mn_t{
 
 struct lisp_t* lisp_open();
 void lisp_close(struct lisp_t* L);
+char* lisp_addsymbol(struct lisp_t* L, const char* symbol);
 
 #endif
 

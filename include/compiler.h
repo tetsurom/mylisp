@@ -7,7 +7,6 @@ struct lisp_mn_t;
 
 struct lisp_mn_t* lisp_compile(struct lisp_t* L, struct cons_t* tree);
 void lisp_printcode(struct lisp_mn_t* code);
-void lisp_clearcode(struct lisp_mn_t* code);
 
 #endif
 

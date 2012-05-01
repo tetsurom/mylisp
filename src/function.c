@@ -1,22 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-#include <memory.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <limits.h>
 #include <assert.h>
-#include "treeoperation.h"
-#include "variable.h"
 #include "function.h"
 #include "lisp.h"
 #include "util.h"
-
-static char* strclone(const char* str)
-{
-    char* clone = CALLOC(char, strlen(str) + 1);
-    strcpy(clone, str);
-    return clone;
-}
 
 void define_func(lisp_t* L, const char* name, lisp_mn_t* definition, int argc)
 {
@@ -33,13 +21,13 @@ void define_func(lisp_t* L, const char* name, lisp_mn_t* definition, int argc)
             return;
         }
     }
-    (*regist_point) = ALLOC(lisp_func_t);
-    (**regist_point).address = definition;
-    (**regist_point).name = strclone(name);
-    (**regist_point).argc = argc;
-    (**regist_point).next = NULL;
+    func = (*regist_point) = ALLOC(lisp_func_t);
+    func->address = definition;
+    func->name = lisp_addsymbol(L, name);
+    func->argc = argc;
+    func->next = NULL;
     if(definition){
-        printf("function %s [%p]\n", name, (*regist_point));
+        printf("function %s [%p]\n", name, func);
     }
 }
 

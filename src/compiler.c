@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <memory.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <limits.h>
 #include <assert.h>
 
 #include "compiler.h"
@@ -134,21 +131,14 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
     }
 }
 
-static int getOpecode(enum cell_type_e cell_type)
+inline static int getOpecode(enum cell_type_e cell_type)
 {
     return cell_type - OP_ADD + LC_ADD;
 }
 
-static int getCOpecode(enum cell_type_e cell_type)
+inline static int getCOpecode(enum cell_type_e cell_type)
 {
     return cell_type - OP_ADD + LC_ADDC;
-}
-
-static char* strclone(const char* str)
-{
-    char* clone = CALLOC(char, strlen(str) + 1);
-    strcpy(clone, str);
-    return clone;
 }
 
 static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
@@ -228,7 +218,7 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
                 lisp_func_t* function = get_func(L, func->svalue); 
                 if(!function){
                     mnemonic->opcode = LC_CALLS;
-                    mnemonic->poperand = strclone(func->svalue);
+                    mnemonic->poperand = lisp_addsymbol(L, func->svalue);
                 }else{
                     mnemonic->opcode = LC_CALL;
                     mnemonic->poperand = function;
@@ -252,7 +242,7 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
         break;
     case STR:
         mnemonic->opcode = LC_LOADVS;
-        mnemonic->poperand = strclone(tree->svalue);
+        mnemonic->poperand = lisp_addsymbol(L, tree->svalue);
         ++state->pc;
         break;
     case INT:
@@ -284,7 +274,7 @@ lisp_mn_t* lisp_compile(lisp_t* L, cons_t* tree)
         mnemonic = cstate.bytecode + codesize - 1;
         mnemonic->opcode = LC_RET;
         ++mnemonic;
-        mnemonic->opcode = LC_RET;
+        mnemonic->opcode = LC_END;
         cstate.pc = 0;
         compile(L, &cstate, tree);
     }
@@ -333,9 +323,7 @@ void lisp_printcode(lisp_mn_t* code)
 {
     int cnt = 0;
     if(!code) return;
-    --code;
-    do{
-        ++code;
+    for(;code->opcode != LC_END; ++code){
         printf("0x%04X\t%s", cnt, getOpcodeStr(code));
         switch(code->opcode){
         case LC_PUSH:
@@ -364,16 +352,6 @@ void lisp_printcode(lisp_mn_t* code)
             break;
         }
         ++cnt;
-    }while(!(code->opcode == LC_RET && (code+1)->opcode == LC_RET));
-}
-
-void lisp_clearcode(lisp_mn_t* code)
-{
-    for(; code->opcode != LC_RET; ++code){
-        if(code->opcode == LC_LOADVS || code->opcode == LC_CALLS){
-            free(code->poperand);
-        }
     }
-    free(code);
 }
 

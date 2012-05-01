@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <string.h>
-#include <memory.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <limits.h>
 #include <assert.h>
 #include "treeoperation.h"
 #include "variable.h"
 #include "function.h"
+#include "compiler.h"
 #include "eval.h"
 #include "istack.h"
 #include "lisp.h"
@@ -17,15 +15,32 @@
 #define STACK_OP2(x) (x->data[x->top])
 #define STACK_RET(x) (x->data[x->top - 1])
 
-void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
+void lisp_eval(lisp_t* L, cons_t* tree)
+{
+    if(tree->type == LIST){
+        lisp_mn_t* code = lisp_compile(L, tree);
+        putchar('\n');
+        if(code){
+            lisp_printcode(code);
+            lisp_execute(L, code, NULL);
+            printf("----------------\n");
+            printf("%d\n", istack_top(L->g_stack));
+            istack_settop(L->g_stack, 0);
+            free(code);
+        }
+    }
+}
+
+void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
 {
     lisp_mn_t* code_head = code_mn;
     istack_t* stack = L->g_stack;
+    int* data = stack->data;
+
     assert(code_mn);
     for(;; ++code_mn){
         register int stack_top = stack->top;
-        int* data = stack->data;
-        int* stack_top_p = data + stack_top;
+        //int* stack_top_p = data + stack_top;
         switch(code_mn->opcode){
         case LC_PUSH:
             data[++stack->top] = code_mn->ioperand;
@@ -44,7 +59,9 @@ void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
             int argc = function->argc;
             int param_top_index = stack_top - argc + 1;
             int* param_top = stack->data + param_top_index;
-            lisp_eval(L, function->address, param_top);
+            //printf("%s(%i; %i, %i) ", function->name, function->argc, *param_top, *(param_top + 1));
+            lisp_execute(L, function->address, param_top);
+            //printf(" -> %i\n", data[stack->top]);
             if(argc > 0){
                 data[param_top_index] = data[stack->top];
                 stack->top = param_top_index;
@@ -67,7 +84,7 @@ void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
             //op2 = istack_popget(stack);
             //op1 = istack_popget(stack);
             //istack_push(stack, op1 + op2);
-            *(stack_top_p - 1) += *stack_top_p;
+            data[--stack->top] += data[stack_top];
             break;
         case LC_SUB:
             data[--stack->top] -= data[stack_top];
@@ -108,7 +125,7 @@ void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
             data[stack_top] += code_mn->ioperand;
             break;
         case LC_SUBC:
-            *stack_top_p -= code_mn->ioperand;
+            data[stack_top] -= code_mn->ioperand;
             break;
         case LC_MULC:
             *STACK_TOP(stack) *= code_mn->ioperand;
@@ -135,6 +152,7 @@ void lisp_eval(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
             *STACK_TOP(stack) = *STACK_TOP(stack) != code_mn->ioperand;
             break;
         case LC_RET:
+        //case LC_END:
             return;
         default:
             break;

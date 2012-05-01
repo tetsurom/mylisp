@@ -1,10 +1,8 @@
 #ifndef EVAL_H
 #define EVAL_H
 
-struct cons_t;
-struct lisp_t;
-
-void lisp_eval(struct lisp_t* L, struct lisp_mn_t* code_mn, int* sp_funcparam);
+void lisp_eval(struct lisp_t* L, struct cons_t* tree);
+void lisp_execute(struct lisp_t* L, struct lisp_mn_t* code_mn, int* sp_funcparam);
 
 #endif
 
