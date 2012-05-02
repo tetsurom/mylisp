@@ -17,7 +17,7 @@ void define_func(lisp_t* L, const char* name, lisp_mn_t* definition, int argc)
             free(func->address);
             func->address = definition;
             func->argc = argc;
-            printf("function %s [%p]\n", name, func);
+            //printf("function %s [%p]\n", name, func);
             return;
         }
     }
@@ -27,7 +27,7 @@ void define_func(lisp_t* L, const char* name, lisp_mn_t* definition, int argc)
     func->argc = argc;
     func->next = NULL;
     if(definition){
-        printf("function %s [%p]\n", name, func);
+        //printf("function %s [%p]\n", name, func);
     }
 }
 

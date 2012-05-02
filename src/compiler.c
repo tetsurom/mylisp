@@ -67,6 +67,21 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
         switch(func->type){
         case DEFUN:
         {
+            if(!param){
+                func->type = OP_ADD;
+                int zero = 0;
+                param = func->cdr = create_cons_cell(&zero, INT);
+                ++state->pc;
+                break;
+            }
+            if(!param->cdr){
+                int zero = 0;
+                param->cdr = create_cons_cell(&zero, INT);
+            }
+            if(!param->cdr->cdr){
+                int zero = 0;
+                param->cdr->cdr = create_cons_cell(&zero, INT);
+            }
             cons_t* args = param->cdr->car;
             cons_t* proc = param->cdr->cdr;
             lisp_mn_t* funccode;
@@ -75,7 +90,7 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             define_func(L, param->svalue, NULL, 0);
             funccode = lisp_compile(L, proc);
             define_func(L, param->svalue, funccode, tree_listsize(args));
-            lisp_printcode(funccode);
+            //lisp_printcode(funccode);
             lisp_postprocess(funccode);
             break;
         }
@@ -90,6 +105,10 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
         {
             cons_t* on_true = param->cdr;
             cons_t* on_nil = on_true->cdr;
+            if(!on_nil){
+                int zero = 0;
+                on_nil = on_true->cdr = create_cons_cell(&zero, INT);
+            }
             lisp_precompile(L, state, param);
             ++state->pc;
             lisp_precompile(L, state, on_true);
@@ -100,6 +119,10 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
         default:
         {
             int is_op = func->type != STR;
+            if(!param){
+                int zero = 0;
+                param = func->cdr = create_cons_cell(&zero, INT);
+            }
             lisp_precompile(L, state, param);
             for(param = param->cdr; param; param = param->cdr){
                 if(param->type == INT && is_op){
@@ -305,7 +328,7 @@ lisp_mn_t* lisp_compile(lisp_t* L, cons_t* tree)
     cstate.pc = 0;
     cstate.bytecode = NULL;
     lisp_precompile(L, &cstate, tree);
-    if(tree->car->type != DEFUN){
+    if(tree->type != LIST || tree->car->type != DEFUN){
         lisp_mn_t* mnemonic;
         codesize = ++cstate.pc;
         //printf("ret\n");

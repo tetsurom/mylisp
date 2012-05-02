@@ -31,8 +31,8 @@ int main(int argc, const char* argv[])
         }
     }
     for(head = tree; head; head = head->cdr){
-        print_tree(head);
-        putchar('\n');
+        //print_tree(head);
+        //putchar('\n');
         lisp_eval(L, head);   
     }
     free_tree(tree);

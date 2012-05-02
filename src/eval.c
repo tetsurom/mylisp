@@ -19,19 +19,26 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam);
 
 void lisp_eval(lisp_t* L, cons_t* tree)
 {
-    if(tree->type == LIST){
+    //if(tree->type == LIST){
         lisp_mn_t* code = lisp_compile(L, tree);
-        putchar('\n');
+        //putchar('\n');
         if(code){
-            lisp_printcode(code);
+            //lisp_printcode(code);
             lisp_postprocess(code);
             lisp_execute(L, code, NULL);
-            printf("----------------\n");
-            printf("%d\n", istack_top(L->g_stack));
+            //printf("----------------\n");
+            int val = istack_top(L->g_stack);
+            if(val == 0){
+                printf("nil\n");
+            }else if(val == 1){
+                printf("t\n");
+            }else{
+                printf("%d\n", val);
+            }
             istack_settop(L->g_stack, 0);
             free(code);
         }
-    }
+    //}
 }
 
 #define OP_2STACK(top, op) { *(top-1) op ## = *top; top -= 1; }
