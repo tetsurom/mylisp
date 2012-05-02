@@ -24,6 +24,7 @@ void lisp_eval(lisp_t* L, cons_t* tree)
         putchar('\n');
         if(code){
             lisp_printcode(code);
+            lisp_postprocess(code);
             lisp_execute(L, code, NULL);
             printf("----------------\n");
             printf("%d\n", istack_top(L->g_stack));
@@ -39,12 +40,20 @@ void lisp_eval(lisp_t* L, cons_t* tree)
 
 #define LABELP(x) (&&L_ ## x)
 #define CASE(x) L_ ## x
-#define JUMP(x) goto *jumptable[x]
+#define JUMP(x) goto *x
 
+void** jumptable;
+static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam);
+
+void** getJumpTable()
+{
+    lisp_execute(NULL, NULL, NULL);
+    return jumptable;
+}
 
 static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
 {
-    static void* jumptable[] = {
+    static void* jtable[] = {
         LABELP(LC_PUSH),
         LABELP(LC_LOADP),
         LABELP(LC_LOADV),
@@ -82,11 +91,17 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         LABELP(LC_NOP),
     };
 
+    if(!code_mn){
+        jumptable = jtable;    
+        return;
+    }
     lisp_mn_t* code_head = code_mn;
     istack_t* stack = L->g_stack;
     int* data = stack->data;
     int* top = stack->data + stack->top;
+
     JUMP(code_mn->opcode);
+    
     CASE(LC_PUSH):
         PUSH(top, code_mn->ioperand);
         JUMP((++code_mn)->opcode);
@@ -125,17 +140,13 @@ static void lisp_execute(lisp_t* L, lisp_mn_t* code_mn, int* sp_funcparam)
         int argc = function->argc;
         int* param_top = top - argc + 1;
         stack->top = (int)(top - data);
-        //printf("%s(%i; %i, %i) ", function->name, function->argc, *param_top, *(param_top + 1));
         lisp_execute(L, function->address, param_top);
-        //printf(" -> %i\n", data[stack->top]);
-        if(argc > 0){
-            *param_top = data[stack->top];
-            top = param_top;
-        }
+        *param_top = data[stack->top];
+        top = param_top;
         JUMP((++code_mn)->opcode);
     }
     CASE(LC_SETQ):
-        *(int*)code_mn->poperand = *(top--);
+        *(int*)code_mn->poperand = *top;
         JUMP((++code_mn)->opcode);
     CASE(LC_IFNIL):
         JUMP( (*(top--) ? (++code_mn) : (code_mn = code_head + code_mn->ioperand))->opcode );

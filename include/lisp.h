@@ -25,6 +25,7 @@ typedef struct lisp_t {
 } lisp_t;
 
 typedef struct lisp_mn_t{
+    union{
     enum opcode_e {
         LC_PUSH,
         LC_LOADP,
@@ -63,6 +64,8 @@ typedef struct lisp_mn_t{
         LC_NOP,
         LC_END,
     } opcode;
+        void* popcode;
+    };
     union {
         int ioperand;
         void* poperand;

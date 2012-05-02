@@ -9,6 +9,7 @@
 #include "variable.h"
 #include "lisp.h"
 #include "util.h"
+#include "eval.h"
 
 typedef struct lisp_compiler_state_t{
     lisp_mn_t* bytecode;
@@ -75,6 +76,7 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             funccode = lisp_compile(L, proc);
             define_func(L, param->svalue, funccode, tree_listsize(args));
             lisp_printcode(funccode);
+            lisp_postprocess(funccode);
             break;
         }
         case SETQ:
@@ -204,6 +206,9 @@ static void compile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tree)
         {
             int is_op = func->type != STR;
             compile(L, state, param);
+            if(!param->cdr && func->type == OP_SUB){
+                state->bytecode[state->pc - 1].ioperand *= -1;
+            }
             for(param = param->cdr; param; param = param->cdr){
                 if(param->type == INT && is_op){
                     mnemonic = state->bytecode + state->pc;
@@ -398,6 +403,16 @@ void lisp_printcode(lisp_mn_t* code)
             break;
         }
         ++cnt;
+    }
+}
+
+
+void lisp_postprocess(struct lisp_mn_t* code)
+{
+    void** jumptable = getJumpTable();
+    if(!code) return;
+    for(;code->opcode != LC_END; ++code){
+        code->popcode = jumptable[code->opcode];
     }
 }
 
