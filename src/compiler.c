@@ -90,7 +90,7 @@ static void lisp_precompile(lisp_t* L, lisp_compiler_state_t* state, cons_t* tre
             define_func(L, param->svalue, NULL, 0);
             funccode = lisp_compile(L, proc);
             define_func(L, param->svalue, funccode, tree_listsize(args));
-            //lisp_printcode(funccode);
+            lisp_printcode(funccode);
             lisp_postprocess(funccode);
             break;
         }

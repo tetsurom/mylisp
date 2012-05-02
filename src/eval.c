@@ -23,10 +23,10 @@ void lisp_eval(lisp_t* L, cons_t* tree)
         lisp_mn_t* code = lisp_compile(L, tree);
         //putchar('\n');
         if(code){
-            //lisp_printcode(code);
+            lisp_printcode(code);
             lisp_postprocess(code);
             lisp_execute(L, code, NULL);
-            //printf("----------------\n");
+            printf("----------------\n");
             int val = istack_top(L->g_stack);
             if(val == 0){
                 printf("nil\n");
